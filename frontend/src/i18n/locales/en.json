@@ -1,0 +1,152 @@
+{
+  "common": {
+    "appName": "SEED BASKET AI",
+    "login": "Login",
+    "logout": "Logout",
+    "register": "Register",
+    "email": "Email",
+    "password": "Password",
+    "confirmPassword": "Confirm Password",
+    "name": "Name",
+    "loading": "Loading...",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "edit": "Edit",
+    "search": "Search",
+    "filter": "Filter",
+    "all": "All",
+    "refresh": "Refresh",
+    "send": "Send",
+    "close": "Close"
+  },
+  
+  "nav": {
+    "dashboard": "Dashboard",
+    "diary": "Diary",
+    "markets": "Markets",
+    "news": "News",
+    "seebaAI": "SEEBA AI"
+  },
+  
+  "marketClock": {
+    "marketOpen": "Market Open",
+    "marketClosed": "Market Closed",
+    "openingIn": "Opening in",
+    "closingIn": "Closing in",
+    "hours": "hours",
+    "minutes": "minutes",
+    "seconds": "seconds"
+  },
+  
+  "dashboard": {
+    "title": "Dashboard",
+    "welcome": "Welcome back, {{name}}!",
+    "marketOverview": "Market Overview",
+    "etfPerformance": "ETF Performance",
+    "topGainers": "Top Gainers",
+    "topLosers": "Top Losers",
+    "marketNews": "Market News",
+    "commodities": "Commodities",
+    "gainers": "Gainers",
+    "losers": "Losers",
+    "unchanged": "Unchanged",
+    "noNewsAvailable": "No news available at the moment"
+  },
+  
+  "markets": {
+    "title": "Markets",
+    "description": "Complete view of all tracked ETFs and commodities with real-time data",
+    "etfs": "ETFs",
+    "commodities": "Commodities",
+    "etfsDescription": "Track major market indices, sectors, and investment themes",
+    "commoditiesDescription": "Precious metals, energy, agriculture, and raw materials",
+    "searchPlaceholder": "Search by symbol or name...",
+    "noResults": "No results found",
+    "showing": "Showing {{count}} of {{total}} total instruments",
+    "dataRefreshInfo": "Data refreshes every 30 minutes • Powered by Alpha Vantage & Finnhub"
+  },
+  
+  "news": {
+    "title": "Financial News",
+    "subtitle": "Latest market news and analysis from trusted sources",
+    "categories": {
+      "all": "All News",
+      "macro": "Macro",
+      "micro": "Micro",
+      "market": "Market",
+      "commodity": "Commodity"
+    },
+    "impactedETFs": "Impacted ETFs",
+    "aiAnalysis": "AI Analysis",
+    "readMore": "Read more",
+    "source": "Source",
+    "publishedAt": "Published",
+    "refreshing": "Refreshing news...",
+    "fetchingNews": "Fetching latest news...",
+    "noNews": "No news available at the moment",
+    "error": "Failed to fetch news"
+  },
+  
+  "diary": {
+    "title": "Investment Diary",
+    "subtitle": "Track your investment thoughts, decisions, and market observations",
+    "newEntry": "New Entry",
+    "editEntry": "Edit Entry",
+    "deleteConfirm": "Are you sure you want to delete this entry?",
+    "entryDeleted": "Entry deleted successfully",
+    "entrySaved": "Entry saved successfully",
+    "tags": "Tags",
+    "relatedETFs": "Related ETFs",
+    "relatedNews": "Related News",
+    "selectETFs": "Select related ETFs",
+    "selectNews": "Select related news",
+    "noEntries": "No diary entries yet. Start documenting your investment journey!",
+    "createFirst": "Create your first entry",
+    "sentiment": {
+      "bullish": "Bullish",
+      "bearish": "Bearish",
+      "neutral": "Neutral"
+    }
+  },
+  
+  "seebaAI": {
+    "title": "SEEBA AI",
+    "subtitle": "Senior ETF & Exchange-traded products Basket Analyst",
+    "description": "20+ years of market expertise • Real-time ETF & commodity analysis • Professional insights",
+    "welcome": "Welcome! I'm SEEBA AI",
+    "intro": "With 20 years of experience analyzing ETFs and commodities, I'm here to provide professional market insights based on real-time data.",
+    "tryAsking": "Try asking me:",
+    "placeholder": "Ask SEEBA AI about ETFs, commodities, or market analysis...",
+    "newChat": "New Chat",
+    "conversations": "Conversations",
+    "noConversations": "No conversations yet. Start a new chat!",
+    "sampleQuestions": [
+      "What's the market outlook for SPY and QQQ today?",
+      "How are gold (GLD) and silver (SLV) performing?",
+      "Which sector ETFs are leading today's market?",
+      "Analyze the correlation between oil prices and energy ETFs",
+      "What's driving today's commodity movements?"
+    ]
+  },
+  
+  "auth": {
+    "loginTitle": "Sign In to SEED BASKET AI",
+    "registerTitle": "Create Your Account",
+    "loginSubtitle": "Access your AI-powered investment intelligence platform",
+    "registerSubtitle": "Start your journey with AI-powered investment insights",
+    "alreadyHaveAccount": "Already have an account?",
+    "dontHaveAccount": "Don't have an account?",
+    "signingIn": "Signing in...",
+    "creatingAccount": "Creating account...",
+    "loginSuccess": "Login successful!",
+    "registerSuccess": "Registration successful!",
+    "errors": {
+      "invalidCredentials": "Invalid email or password",
+      "emailTaken": "Email already registered",
+      "passwordMismatch": "Passwords do not match",
+      "weakPassword": "Password must be at least 6 characters",
+      "networkError": "Network error. Please try again."
+    }
+  }
+}

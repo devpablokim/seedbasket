@@ -39,3 +39,8 @@ coverage/
 .cache/
 .temp/
 *.tmp
+
+# Test and temporary files
+backend/test-*.js
+backend/manual-update.js
+backend/quick-populate.js

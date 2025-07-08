@@ -43,12 +43,21 @@ app.get('/health', (req, res) => {
 const { updateMarketData } = require('./services/marketDataService');
 const { fetchLatestNews } = require('./services/newsService');
 
+// 매 30분마다 시장 데이터 업데이트 (Alpha Vantage + Finnhub 결합)
+cron.schedule('*/30 * * * *', async () => {
+  console.log('Running market data update...');
+  await updateMarketData(); // Combined Alpha Vantage + Finnhub
+});
+
+// 매시간 뉴스 업데이트 (NewsAPI + Finnhub)
 cron.schedule('0 * * * *', async () => {
-  console.log('Running hourly market data update...');
-  await updateMarketData();
-  await fetchLatestNews();
+  console.log('Running news update...');
+  await fetchLatestNews(); // NewsAPI + Finnhub
 });
 
 app.listen(PORT, () => {
   console.log(`Server is running on port ${PORT}`);
+  
+  // Note: WebSocket is disabled for free tier
+  // Premium features can be enabled when upgraded
 });

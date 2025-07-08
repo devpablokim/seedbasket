@@ -8,8 +8,7 @@ router.get('/etfs', protect, async (req, res) => {
   try {
     const etfs = await MarketData.findAll({
       where: { type: 'ETF' },
-      order: [['marketCap', 'DESC']],
-      limit: 20
+      order: [['marketCap', 'DESC'], ['symbol', 'ASC']]
     });
 
     res.json(etfs);
@@ -35,11 +34,11 @@ router.get('/all', protect, async (req, res) => {
     const [etfs, commodities] = await Promise.all([
       MarketData.findAll({
         where: { type: 'ETF' },
-        order: [['marketCap', 'DESC']],
-        limit: 20
+        order: [['marketCap', 'DESC'], ['symbol', 'ASC']]
       }),
       MarketData.findAll({
-        where: { type: 'COMMODITY' }
+        where: { type: 'COMMODITY' },
+        order: [['symbol', 'ASC']]
       })
     ]);
 

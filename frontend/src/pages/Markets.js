@@ -119,7 +119,53 @@ const Markets = () => {
         </div>
       </div>
 
-      {data.length === 0 ? (
+      {filter === 'all' ? (
+        <>
+          {/* ETFs Section */}
+          <div className="mb-12">
+            <div className="mb-6">
+              <h2 className="text-2xl font-semibold text-gray-900">Exchange-Traded Funds (ETFs)</h2>
+              <p className="text-gray-600 mt-1">Track major market indices, sectors, and investment themes</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {marketData.etfs.filter(item => 
+                !searchTerm || 
+                item.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                item.name.toLowerCase().includes(searchTerm.toLowerCase())
+              ).map((item) => (
+                <ETFCard key={item.symbol} data={item} />
+              ))}
+            </div>
+          </div>
+
+          {/* Divider */}
+          <div className="relative my-12">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-gray-300"></div>
+            </div>
+            <div className="relative flex justify-center">
+              <span className="bg-gray-50 px-4 text-sm text-gray-500">Commodities</span>
+            </div>
+          </div>
+
+          {/* Commodities Section */}
+          <div>
+            <div className="mb-6">
+              <h2 className="text-2xl font-semibold text-gray-900">Commodities</h2>
+              <p className="text-gray-600 mt-1">Precious metals, energy, agriculture, and raw materials</p>
+            </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+              {marketData.commodities.filter(item => 
+                !searchTerm || 
+                item.symbol.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                item.name.toLowerCase().includes(searchTerm.toLowerCase())
+              ).map((item) => (
+                <ETFCard key={item.symbol} data={item} />
+              ))}
+            </div>
+          </div>
+        </>
+      ) : data.length === 0 ? (
         <div className="text-center py-12">
           <p className="text-gray-500">No results found</p>
         </div>
@@ -133,7 +179,7 @@ const Markets = () => {
 
       <div className="mt-8 text-center text-sm text-gray-500">
         <p>Showing {data.length} of {marketData.etfs.length + marketData.commodities.length} total instruments</p>
-        <p className="mt-1">Data refreshes every 5 minutes during market hours</p>
+        <p className="mt-1">Data refreshes every 30 minutes • Powered by Alpha Vantage & Finnhub</p>
       </div>
     </div>
   );

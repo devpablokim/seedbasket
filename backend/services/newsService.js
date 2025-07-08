@@ -1,6 +1,7 @@
 const axios = require('axios');
 const { News, MarketData } = require('../models');
 const { analyzeNewsImpact } = require('./aiService');
+const { fetchAndAnalyzeFinnhubNews } = require('./finnhubService');
 
 async function fetchLatestNews() {
   try {
@@ -72,7 +73,12 @@ async function fetchLatestNews() {
       }
     }
     
-    console.log('News update completed');
+    console.log('NewsAPI update completed');
+    
+    // Finnhub 뉴스도 가져오기
+    await fetchAndAnalyzeFinnhubNews();
+    
+    console.log('All news updates completed');
   } catch (error) {
     console.error('Error in news service:', error);
   }

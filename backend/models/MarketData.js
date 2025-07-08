@@ -35,6 +35,18 @@ const MarketData = sequelize.define('MarketData', {
     type: DataTypes.DECIMAL(5, 2),
     allowNull: true
   },
+  high: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true
+  },
+  low: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true
+  },
+  open: {
+    type: DataTypes.DECIMAL(10, 2),
+    allowNull: true
+  },
   volume: {
     type: DataTypes.BIGINT,
     allowNull: true

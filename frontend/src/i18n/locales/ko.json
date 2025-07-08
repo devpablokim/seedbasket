@@ -1,0 +1,152 @@
+{
+  "common": {
+    "appName": "시드바스켓 AI",
+    "login": "로그인",
+    "logout": "로그아웃",
+    "register": "회원가입",
+    "email": "이메일",
+    "password": "비밀번호",
+    "confirmPassword": "비밀번호 확인",
+    "name": "이름",
+    "loading": "로딩 중...",
+    "save": "저장",
+    "cancel": "취소",
+    "delete": "삭제",
+    "edit": "수정",
+    "search": "검색",
+    "filter": "필터",
+    "all": "전체",
+    "refresh": "새로고침",
+    "send": "전송",
+    "close": "닫기"
+  },
+  
+  "nav": {
+    "dashboard": "대시보드",
+    "diary": "투자일기",
+    "markets": "시장",
+    "news": "뉴스",
+    "seebaAI": "시바 AI"
+  },
+  
+  "marketClock": {
+    "marketOpen": "시장 개장",
+    "marketClosed": "시장 마감",
+    "openingIn": "개장까지",
+    "closingIn": "마감까지",
+    "hours": "시간",
+    "minutes": "분",
+    "seconds": "초"
+  },
+  
+  "dashboard": {
+    "title": "대시보드",
+    "welcome": "안녕하세요, {{name}}님!",
+    "marketOverview": "시장 개요",
+    "etfPerformance": "ETF 성과",
+    "topGainers": "상승 1위",
+    "topLosers": "하락 1위",
+    "marketNews": "시장 뉴스",
+    "commodities": "원자재",
+    "gainers": "상승",
+    "losers": "하락",
+    "unchanged": "보합",
+    "noNewsAvailable": "현재 표시할 뉴스가 없습니다"
+  },
+  
+  "markets": {
+    "title": "시장",
+    "description": "실시간 데이터로 추적하는 모든 ETF와 원자재 현황",
+    "etfs": "ETF",
+    "commodities": "원자재",
+    "etfsDescription": "주요 시장 지수, 섹터, 투자 테마 추적",
+    "commoditiesDescription": "귀금속, 에너지, 농산물, 원자재",
+    "searchPlaceholder": "심볼 또는 이름으로 검색...",
+    "noResults": "검색 결과가 없습니다",
+    "showing": "총 {{total}}개 중 {{count}}개 표시",
+    "dataRefreshInfo": "30분마다 데이터 업데이트 • Alpha Vantage & Finnhub 제공"
+  },
+  
+  "news": {
+    "title": "금융 뉴스",
+    "subtitle": "신뢰할 수 있는 출처의 최신 시장 뉴스와 분석",
+    "categories": {
+      "all": "전체 뉴스",
+      "macro": "거시경제",
+      "micro": "미시경제",
+      "market": "시장",
+      "commodity": "원자재"
+    },
+    "impactedETFs": "영향받는 ETF",
+    "aiAnalysis": "AI 분석",
+    "readMore": "더 읽기",
+    "source": "출처",
+    "publishedAt": "게시일",
+    "refreshing": "뉴스 새로고침 중...",
+    "fetchingNews": "최신 뉴스 가져오는 중...",
+    "noNews": "현재 표시할 뉴스가 없습니다",
+    "error": "뉴스를 가져오는데 실패했습니다"
+  },
+  
+  "diary": {
+    "title": "투자 일기",
+    "subtitle": "투자 생각, 결정, 시장 관찰을 기록하세요",
+    "newEntry": "새 항목",
+    "editEntry": "항목 수정",
+    "deleteConfirm": "이 항목을 삭제하시겠습니까?",
+    "entryDeleted": "항목이 삭제되었습니다",
+    "entrySaved": "항목이 저장되었습니다",
+    "tags": "태그",
+    "relatedETFs": "관련 ETF",
+    "relatedNews": "관련 뉴스",
+    "selectETFs": "관련 ETF 선택",
+    "selectNews": "관련 뉴스 선택",
+    "noEntries": "아직 일기가 없습니다. 투자 여정을 기록해보세요!",
+    "createFirst": "첫 번째 일기 작성하기",
+    "sentiment": {
+      "bullish": "강세",
+      "bearish": "약세",
+      "neutral": "중립"
+    }
+  },
+  
+  "seebaAI": {
+    "title": "시바 AI",
+    "subtitle": "수석 ETF & 상장지수상품 바스켓 애널리스트",
+    "description": "20년 이상의 시장 전문성 • 실시간 ETF & 원자재 분석 • 전문가 인사이트",
+    "welcome": "안녕하세요! 저는 시바 AI입니다",
+    "intro": "20년간 ETF와 원자재를 분석해온 경험을 바탕으로, 실시간 데이터 기반의 전문적인 시장 인사이트를 제공합니다.",
+    "tryAsking": "이런 질문을 해보세요:",
+    "placeholder": "ETF, 원자재, 시장 분석에 대해 시바 AI에게 물어보세요...",
+    "newChat": "새 대화",
+    "conversations": "대화 목록",
+    "noConversations": "아직 대화가 없습니다. 새 대화를 시작하세요!",
+    "sampleQuestions": [
+      "오늘 SPY와 QQQ의 시장 전망은 어떤가요?",
+      "금(GLD)과 은(SLV)의 성과는 어떻습니까?",
+      "오늘 시장을 주도하는 섹터 ETF는 무엇인가요?",
+      "원유 가격과 에너지 ETF의 상관관계를 분석해주세요",
+      "오늘 원자재 시장 움직임의 원인은 무엇인가요?"
+    ]
+  },
+  
+  "auth": {
+    "loginTitle": "시드바스켓 AI 로그인",
+    "registerTitle": "계정 만들기",
+    "loginSubtitle": "AI 기반 투자 인텔리전스 플랫폼에 접속하세요",
+    "registerSubtitle": "AI 기반 투자 인사이트로 여정을 시작하세요",
+    "alreadyHaveAccount": "이미 계정이 있으신가요?",
+    "dontHaveAccount": "계정이 없으신가요?",
+    "signingIn": "로그인 중...",
+    "creatingAccount": "계정 생성 중...",
+    "loginSuccess": "로그인 성공!",
+    "registerSuccess": "회원가입 성공!",
+    "errors": {
+      "invalidCredentials": "이메일 또는 비밀번호가 올바르지 않습니다",
+      "emailTaken": "이미 등록된 이메일입니다",
+      "passwordMismatch": "비밀번호가 일치하지 않습니다",
+      "weakPassword": "비밀번호는 최소 6자 이상이어야 합니다",
+      "networkError": "네트워크 오류입니다. 다시 시도해주세요."
+    }
+  }
+}

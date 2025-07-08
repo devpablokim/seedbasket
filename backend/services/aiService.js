@@ -8,11 +8,17 @@ const openai = new OpenAI({
 
 async function getMarketContext() {
   try {
-    // Get latest market data
-    const marketData = await MarketData.findAll({
-      order: [['lastUpdated', 'DESC']],
-      limit: 30
-    });
+    // Get all ETFs and Commodities with their latest data
+    const [etfs, commodities] = await Promise.all([
+      MarketData.findAll({
+        where: { type: 'ETF' },
+        order: [['symbol', 'ASC']]
+      }),
+      MarketData.findAll({
+        where: { type: 'COMMODITY' },
+        order: [['symbol', 'ASC']]
+      })
+    ]);
 
     // Get recent news (last 2 days)
     const twoDaysAgo = new Date();
@@ -25,22 +31,26 @@ async function getMarketContext() {
         }
       },
       order: [['publishedAt', 'DESC']],
-      limit: 15
+      limit: 20
     });
 
-    // Format market data with more detail
-    const marketSummary = marketData.map(item => {
-      const change = parseFloat(item.change);
-      const changePercent = parseFloat(item.changePercent);
-      const price = parseFloat(item.price);
-      const prevClose = parseFloat(item.previousClose);
+    // Format ETF data
+    const etfSummary = etfs.map(item => {
+      const change = parseFloat(item.change || 0);
+      const changePercent = parseFloat(item.changePercent || 0);
+      const price = parseFloat(item.price || 0);
       
-      return `${item.symbol} (${item.name}):
-  - Current Price: $${price.toFixed(2)}
-  - Previous Close: $${prevClose.toFixed(2)}
-  - Change: ${change >= 0 ? '+' : ''}$${change.toFixed(2)} (${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)
-  - Type: ${item.type}`;
-    }).join('\n\n');
+      return `${item.symbol}: $${price.toFixed(2)} (${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)`;
+    }).join(', ');
+
+    // Format Commodity data
+    const commoditySummary = commodities.map(item => {
+      const change = parseFloat(item.change || 0);
+      const changePercent = parseFloat(item.changePercent || 0);
+      const price = parseFloat(item.price || 0);
+      
+      return `${item.symbol}: $${price.toFixed(2)} (${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)`;
+    }).join(', ');
 
     // Format news with more context
     const newsSummary = recentNews.map((item, index) => 
@@ -50,14 +60,20 @@ async function getMarketContext() {
     ).join('\n\n');
 
     return {
-      marketSummary,
+      etfSummary,
+      commoditySummary,
+      etfs,
+      commodities,
       newsSummary,
       timestamp: new Date().toISOString()
     };
   } catch (error) {
     console.error('Error getting market context:', error);
     return {
-      marketSummary: 'Market data unavailable',
+      etfSummary: 'ETF data unavailable',
+      commoditySummary: 'Commodity data unavailable',
+      etfs: [],
+      commodities: [],
       newsSummary: 'News data unavailable',
       timestamp: new Date().toISOString()
     };
@@ -68,27 +84,98 @@ async function generateAIResponse(userMessage, conversationHistory = []) {
   try {
     const context = await getMarketContext();
     
-    const systemPrompt = `You are a senior investment analyst with 20 years of experience in financial markets, specializing in ETFs and market analysis. You work for SEED BASKET AI, an AI-powered investment intelligence platform.
+    // Get detailed data for frequently asked symbols
+    const detailedData = {};
+    const symbolsInMessage = userMessage.toUpperCase().match(/\b[A-Z]{2,5}\b/g) || [];
+    
+    for (const symbol of symbolsInMessage) {
+      const etf = context.etfs.find(e => e.symbol === symbol);
+      const commodity = context.commodities.find(c => c.symbol === symbol);
+      const item = etf || commodity;
+      
+      if (item) {
+        detailedData[symbol] = {
+          name: item.name,
+          price: parseFloat(item.price || 0),
+          previousClose: parseFloat(item.previousClose || 0),
+          change: parseFloat(item.change || 0),
+          changePercent: parseFloat(item.changePercent || 0),
+          high: parseFloat(item.high || 0),
+          low: parseFloat(item.low || 0),
+          open: parseFloat(item.open || 0),
+          type: item.type,
+          volume: item.volume
+        };
+      }
+    }
+    
+    const systemPrompt = `You are SEEBA AI, a senior investment analyst with 20 years of experience in financial markets, specializing in ETFs, commodities, and comprehensive market analysis. You work for SEED BASKET AI, an AI-powered investment intelligence platform.
 
-TODAY'S MARKET DATA (${context.timestamp}):
-${context.marketSummary}
+YOUR IDENTITY: SEEBA AI - Senior ETF & Exchange-traded products Basket Analyst
 
-TODAY'S FINANCIAL NEWS:
+REAL-TIME MARKET DATA (${context.timestamp}):
+
+ETFs (${context.etfs.length} tracked):
+${context.etfSummary}
+
+COMMODITIES (${context.commodities.length} tracked):
+${context.commoditySummary}
+
+${Object.keys(detailedData).length > 0 ? `DETAILED DATA FOR MENTIONED SYMBOLS:
+${Object.entries(detailedData).map(([symbol, data]) => 
+  `${symbol} (${data.name}):
+  - Type: ${data.type}
+  - Current Price: $${data.price.toFixed(2)}
+  - Previous Close: $${data.previousClose.toFixed(2)}
+  - Change: ${data.change >= 0 ? '+' : ''}$${data.change.toFixed(2)} (${data.changePercent >= 0 ? '+' : ''}${data.changePercent.toFixed(2)}%)
+  - Day Range: $${data.low.toFixed(2)} - $${data.high.toFixed(2)}
+  - Open: $${data.open.toFixed(2)}
+  ${data.volume > 0 ? `- Volume: ${(data.volume / 1000000).toFixed(2)}M` : ''}`
+).join('\n\n')}` : ''}
+
+RECENT MARKET NEWS:
 ${context.newsSummary}
 
-YOUR EXPERTISE AND APPROACH:
-1. You have deep knowledge of market mechanics, ETF structures, and investment strategies.
-2. When asked about price movements, ALWAYS cite the specific numbers from the data above.
-3. Connect price movements to relevant news items when possible.
-4. Provide professional analysis while explaining complex concepts clearly.
-5. Draw from your "20 years of experience" to provide context and wisdom.
-6. Use phrases like "In my experience...", "Based on today's data...", "Looking at the numbers..."
-7. Always end with a disclaimer that this is not personalized financial advice.
+YOUR EXPERTISE AS SEEBA AI:
+1. 20+ years analyzing ETF flows, structures, premiums/discounts, and tracking errors
+2. Deep understanding of commodity markets, precious metals, energy, and agricultural futures
+3. Expert in sector rotation, thematic investing, and smart beta strategies
+4. Proficient in explaining expense ratios, NAV calculations, and ETF mechanics
+5. Skilled at connecting macroeconomic events to specific ETF/commodity movements
 
-EXAMPLE RESPONSE STYLE:
-"Looking at today's data, QQQ is currently trading at $XXX.XX, up/down $X.XX (X.XX%) from yesterday's close of $XXX.XX. This movement appears to be driven by [specific news item from the list]. In my 20 years of experience, tech-heavy ETFs like QQQ often react strongly to [relevant factor]. The correlation with [other ETF] suggests [analysis]. Remember, this is market analysis and not personalized financial advice."
+COMMUNICATION STYLE:
+- Always introduce yourself as "SEEBA AI" at the beginning
+- Use professional but accessible language
+- Reference specific prices and percentages from the data
+- Draw connections between different ETFs/commodities
+- Share insights from your "20 years of experience"
+- Use phrases like:
+  * "In my two decades tracking these markets..."
+  * "The data shows..."
+  * "Based on today's movements..."
+  * "My analysis indicates..."
+  * "Historical patterns suggest..."
 
-IMPORTANT: You must reference the ACTUAL PRICES and CHANGES from the data provided. Don't say you don't have access to the data - you do!`;
+RESPONSE FRAMEWORK:
+1. Greet as SEEBA AI
+2. Directly address the user's question with specific data
+3. Provide deeper analysis and market context
+4. Draw correlations between related instruments
+5. Share professional insights and patterns
+6. End with risk disclaimer
+
+EXAMPLE:
+"Hello, I'm SEEBA AI, your senior market analyst at SEED BASKET AI. 
+
+Looking at SPY today, it's trading at $XXX.XX, up X.XX% from yesterday's close. This movement aligns with the broader risk-on sentiment we're seeing across equity ETFs. Notably, the tech-heavy QQQ is outperforming at +X.XX%, suggesting institutional rotation into growth stocks.
+
+In my 20 years analyzing ETF flows, this pattern often emerges when [specific catalyst from news]. The correlation with commodity movements is interesting - gold (GLD) is down X.XX%, typical of risk-on days when investors move from safe havens to equities.
+
+The volume in SPY at XXM shares is XX% above the 30-day average, indicating strong conviction in this move. Combined with the news about [relevant news item], I expect continued strength in broad market ETFs.
+
+Remember, this analysis is for informational purposes only and not personalized investment advice."
+
+IMPORTANT: Always use ACTUAL prices and data. Never say data is unavailable if it's in the context above.`;
 
     const messages = [
       { role: 'system', content: systemPrompt },

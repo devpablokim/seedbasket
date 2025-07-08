@@ -11,11 +11,11 @@ const AskAI = () => {
   const messagesEndRef = useRef(null);
 
   const sampleQuestions = [
-    "Why did QQQ price change today?",
-    "What's the difference between QQQ and TQQQ?",
-    "Which ETFs performed best today?",
-    "Explain the current market sentiment",
-    "What major financial news came out today?"
+    "What's the market outlook for SPY and QQQ today?",
+    "How are gold (GLD) and silver (SLV) performing?",
+    "Which sector ETFs are leading today's market?",
+    "Analyze the correlation between oil prices and energy ETFs",
+    "What's driving today's commodity movements?"
   ];
 
   useEffect(() => {
@@ -159,10 +159,18 @@ const AskAI = () => {
         <div className="flex-1 bg-white rounded-lg shadow-sm border border-gray-200 flex flex-col">
           {/* Header */}
           <div className="p-4 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">Ask AI Assistant</h2>
-            <div className="mt-2 p-3 bg-yellow-50 rounded-md">
-              <p className="text-sm text-yellow-800">
-                ⚠️ AI responses may be inaccurate. Always fact-check important information independently!
+            <div className="flex items-center gap-3">
+              <div className="w-12 h-12 bg-gradient-to-br from-primary-500 to-primary-700 rounded-full flex items-center justify-center">
+                <span className="text-white font-bold text-lg">S</span>
+              </div>
+              <div>
+                <h2 className="text-xl font-semibold text-gray-900">SEEBA AI</h2>
+                <p className="text-sm text-gray-600">Senior ETF & Exchange-traded products Basket Analyst</p>
+              </div>
+            </div>
+            <div className="mt-3 p-3 bg-primary-50 rounded-md">
+              <p className="text-sm text-primary-800">
+                🎯 20+ years of market expertise • Real-time ETF & commodity analysis • Professional insights
               </p>
             </div>
           </div>
@@ -171,17 +179,27 @@ const AskAI = () => {
           <div className="flex-1 overflow-y-auto p-4">
             {messages.length === 0 && (
               <div className="text-center py-8">
-                <h3 className="text-lg font-medium text-gray-900 mb-4">
-                  Ask me about today's market data and news!
-                </h3>
-                <div className="space-y-2">
+                <div className="mb-6">
+                  <div className="w-20 h-20 bg-gradient-to-br from-primary-400 to-primary-600 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <span className="text-white font-bold text-3xl">S</span>
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                    Welcome! I'm SEEBA AI
+                  </h3>
+                  <p className="text-gray-600 max-w-md mx-auto">
+                    With 20 years of experience analyzing ETFs and commodities, I'm here to provide professional market insights based on real-time data.
+                  </p>
+                </div>
+                <div className="space-y-2 max-w-2xl mx-auto">
+                  <p className="text-sm text-gray-500 mb-3">Try asking me:</p>
                   {sampleQuestions.map((question, index) => (
                     <button
                       key={index}
                       onClick={() => sendMessage(question)}
-                      className="block w-full text-left px-4 py-3 bg-gray-50 hover:bg-gray-100 rounded-lg text-sm text-gray-700 transition-colors"
+                      className="block w-full text-left px-4 py-3 bg-gradient-to-r from-gray-50 to-primary-50 hover:from-gray-100 hover:to-primary-100 rounded-lg text-sm text-gray-700 transition-all border border-gray-200 hover:border-primary-300"
                     >
-                      💡 {question}
+                      <span className="text-primary-600 mr-2">→</span>
+                      {question}
                     </button>
                   ))}
                 </div>
@@ -232,7 +250,7 @@ const AskAI = () => {
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Ask about market data, ETFs, or financial news..."
+                placeholder="Ask SEEBA AI about ETFs, commodities, or market analysis..."
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 disabled={loading}
               />

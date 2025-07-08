@@ -35,7 +35,7 @@ const ETFCard = ({ data }) => {
         </div>
       </div>
       
-      {data.volume && (
+      {data.volume > 0 && (
         <div className="mt-3 pt-3 border-t border-gray-100">
           <p className="text-xs text-gray-500">
             Volume: {(data.volume / 1000000).toFixed(2)}M
