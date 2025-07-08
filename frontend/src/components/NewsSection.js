@@ -1,8 +1,10 @@
 import React from 'react';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import './NewsSection.css';
 
 const NewsSection = ({ news, onRefresh, loading }) => {
+  const { t } = useTranslation();
   const getCategoryColor = (category) => {
     switch (category) {
       case 'macro':
@@ -32,10 +34,10 @@ const NewsSection = ({ news, onRefresh, loading }) => {
   return (
     <div className="mt-8">
       <div className="flex items-center justify-between mb-4">
-        <h2 className="text-xl font-semibold text-gray-900">Market News</h2>
+        <h2 className="text-xl font-semibold text-gray-900">{t('newsSection.title')}</h2>
         <div className="flex items-center gap-3">
           <a href="/news" className="text-sm text-primary-600 hover:text-primary-700 font-medium">
-            View All News →
+            {t('newsSection.viewAllNews')}
           </a>
           <button
             onClick={onRefresh}
@@ -55,7 +57,7 @@ const NewsSection = ({ news, onRefresh, loading }) => {
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
               />
             </svg>
-            {loading ? 'Loading...' : 'Refresh News'}
+            {loading ? t('newsSection.loading') : t('newsSection.refreshNews')}
           </button>
         </div>
       </div>
@@ -67,7 +69,7 @@ const NewsSection = ({ news, onRefresh, loading }) => {
               <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
               <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
             </svg>
-            <p className="text-gray-500">Loading news...</p>
+            <p className="text-gray-500">{t('newsSection.loadingNews')}</p>
           </div>
         </div>
       ) : news.length === 0 ? (
@@ -76,12 +78,12 @@ const NewsSection = ({ news, onRefresh, loading }) => {
             <svg className="w-12 h-12 text-gray-400 mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 20H5a2 2 0 01-2-2V6a2 2 0 012-2h10a2 2 0 012 2v1m2 13a2 2 0 01-2-2V7m2 13a2 2 0 002-2V9a2 2 0 00-2-2h-2m-4-3H9M7 16h6M7 8h6v4H7V8z" />
             </svg>
-            <p className="text-gray-500 mb-3">No news available at the moment</p>
+            <p className="text-gray-500 mb-3">{t('newsSection.noNewsAvailable')}</p>
             <button
               onClick={onRefresh}
               className="text-sm text-primary-600 hover:text-primary-700 font-medium"
             >
-              Try refreshing
+              {t('newsSection.tryRefreshing')}
             </button>
           </div>
         </div>
@@ -93,7 +95,7 @@ const NewsSection = ({ news, onRefresh, loading }) => {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-2">
                     <span className={`text-xs px-2 py-1 rounded ${getCategoryColor(article.category)}`}>
-                      {article.category}
+                      {t(`newsSection.categories.${article.category}`, article.category)}
                     </span>
                     <span className="text-xs text-gray-500">
                       {format(new Date(article.publishedAt), 'MMM d, h:mm a')}
@@ -109,7 +111,7 @@ const NewsSection = ({ news, onRefresh, loading }) => {
                   {article.impactedETFs && article.impactedETFs.length > 0 && (
                     <div className="mt-3">
                       <div className="flex items-center gap-2 mb-2">
-                        <span className="text-xs font-medium text-gray-700">AI Impact Analysis</span>
+                        <span className="text-xs font-medium text-gray-700">{t('newsSection.aiImpactAnalysis')}</span>
                         <svg className="w-4 h-4 text-primary-600 ai-badge" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
@@ -142,7 +144,7 @@ const NewsSection = ({ news, onRefresh, loading }) => {
                       rel="noopener noreferrer"
                       className="ml-4 text-xs text-primary-600 hover:text-primary-700"
                     >
-                      Read more →
+                      {t('newsSection.readMore')}
                     </a>
                   </div>
                 </div>

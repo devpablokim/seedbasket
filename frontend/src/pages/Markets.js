@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import ETFCard from '../components/ETFCard';
 
 const Markets = () => {
+  const { t } = useTranslation();
   const [marketData, setMarketData] = useState({ etfs: [], commodities: [] });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -20,7 +22,7 @@ const Markets = () => {
       setLoading(false);
     } catch (err) {
       console.error('Failed to fetch market data:', err);
-      setError('Failed to fetch market data');
+      setError(t('common.error'));
       setLoading(false);
     }
   };
@@ -69,9 +71,9 @@ const Markets = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Markets</h1>
+        <h1 className="text-3xl font-bold text-gray-900">{t('markets.title')}</h1>
         <p className="mt-2 text-gray-600">
-          Complete view of all tracked ETFs and commodities with real-time data
+          {t('markets.description')}
         </p>
       </div>
 
@@ -79,7 +81,7 @@ const Markets = () => {
         <div className="flex-1">
           <input
             type="text"
-            placeholder="Search by symbol or name..."
+            placeholder={t('markets.searchPlaceholder')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -94,7 +96,7 @@ const Markets = () => {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            All ({marketData.etfs.length + marketData.commodities.length})
+            {t('common.all')} ({marketData.etfs.length + marketData.commodities.length})
           </button>
           <button
             onClick={() => setFilter('etfs')}
@@ -104,7 +106,7 @@ const Markets = () => {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            ETFs ({marketData.etfs.length})
+            {t('markets.etfs')} ({marketData.etfs.length})
           </button>
           <button
             onClick={() => setFilter('commodities')}
@@ -114,7 +116,7 @@ const Markets = () => {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            Commodities ({marketData.commodities.length})
+            {t('markets.commodities')} ({marketData.commodities.length})
           </button>
         </div>
       </div>
@@ -124,8 +126,8 @@ const Markets = () => {
           {/* ETFs Section */}
           <div className="mb-12">
             <div className="mb-6">
-              <h2 className="text-2xl font-semibold text-gray-900">Exchange-Traded Funds (ETFs)</h2>
-              <p className="text-gray-600 mt-1">Track major market indices, sectors, and investment themes</p>
+              <h2 className="text-2xl font-semibold text-gray-900">{t('markets.etfs')}</h2>
+              <p className="text-gray-600 mt-1">{t('markets.etfsDescription')}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {marketData.etfs.filter(item => 
@@ -144,15 +146,15 @@ const Markets = () => {
               <div className="w-full border-t border-gray-300"></div>
             </div>
             <div className="relative flex justify-center">
-              <span className="bg-gray-50 px-4 text-sm text-gray-500">Commodities</span>
+              <span className="bg-gray-50 px-4 text-sm text-gray-500">{t('markets.commodities')}</span>
             </div>
           </div>
 
           {/* Commodities Section */}
           <div>
             <div className="mb-6">
-              <h2 className="text-2xl font-semibold text-gray-900">Commodities</h2>
-              <p className="text-gray-600 mt-1">Precious metals, energy, agriculture, and raw materials</p>
+              <h2 className="text-2xl font-semibold text-gray-900">{t('markets.commodities')}</h2>
+              <p className="text-gray-600 mt-1">{t('markets.commoditiesDescription')}</p>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
               {marketData.commodities.filter(item => 
@@ -167,7 +169,7 @@ const Markets = () => {
         </>
       ) : data.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500">No results found</p>
+          <p className="text-gray-500">{t('markets.noResults')}</p>
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -178,8 +180,8 @@ const Markets = () => {
       )}
 
       <div className="mt-8 text-center text-sm text-gray-500">
-        <p>Showing {data.length} of {marketData.etfs.length + marketData.commodities.length} total instruments</p>
-        <p className="mt-1">Data refreshes every 30 minutes • Powered by Alpha Vantage & Finnhub</p>
+        <p>{t('markets.showing', { count: data.length, total: marketData.etfs.length + marketData.commodities.length })}</p>
+        <p className="mt-1">{t('markets.dataRefreshInfo')}</p>
       </div>
     </div>
   );

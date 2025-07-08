@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import axios from 'axios';
+import { useTranslation } from 'react-i18next';
 import ETFCard from '../components/ETFCard';
 import MarketOverview from '../components/MarketOverview';
 import NewsSection from '../components/NewsSection';
 import MarketInfo from '../components/MarketInfo';
 
 const Dashboard = () => {
+  const { t } = useTranslation();
   const [marketData, setMarketData] = useState({ etfs: [], commodities: [] });
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -37,7 +39,7 @@ const Dashboard = () => {
       setLoading(false);
     } catch (err) {
       console.error('Failed to fetch data:', err);
-      setError('Failed to fetch market data');
+      setError(t('common.error'));
       setLoading(false);
     }
   };
@@ -53,10 +55,10 @@ const Dashboard = () => {
       const previousNews = news;
       setNews([{ 
         id: 'error', 
-        title: 'Failed to load news. Please try again.', 
+        title: t('dashboard.failedToLoadNews'), 
         category: 'error',
         publishedAt: new Date(),
-        source: 'System',
+        source: t('dashboard.system'),
         url: '#'
       }]);
       // Revert to previous news after 3 seconds
@@ -87,8 +89,8 @@ const Dashboard = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">AI-Powered Market Dashboard</h1>
-        <p className="mt-2 text-gray-600">Track your portfolio with intelligent insights and real-time AI analysis</p>
+        <h1 className="text-3xl font-bold text-gray-900">{t('dashboard.title')}</h1>
+        <p className="mt-2 text-gray-600">{t('dashboard.subtitle')}</p>
       </div>
 
       <MarketInfo />
@@ -97,9 +99,9 @@ const Dashboard = () => {
 
       <div className="mt-8">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-semibold text-gray-900">Top ETFs</h2>
+          <h2 className="text-xl font-semibold text-gray-900">{t('dashboard.topETFs')}</h2>
           <Link to="/markets" className="text-sm text-primary-600 hover:text-primary-700 font-medium">
-            View All ETFs →
+            {t('dashboard.viewAllETFs')}
           </Link>
         </div>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
@@ -110,7 +112,7 @@ const Dashboard = () => {
       </div>
 
       <div className="mt-8">
-        <h2 className="text-xl font-semibold text-gray-900 mb-4">Commodities</h2>
+        <h2 className="text-xl font-semibold text-gray-900 mb-4">{t('dashboard.commodities')}</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {marketData.commodities.map((commodity) => (
             <ETFCard key={commodity.symbol} data={commodity} />

@@ -1,8 +1,10 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 const AskAI = () => {
+  const { t, i18n } = useTranslation();
   const [messages, setMessages] = useState([]);
   const [inputMessage, setInputMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -10,7 +12,7 @@ const AskAI = () => {
   const [currentConversationId, setCurrentConversationId] = useState(null);
   const messagesEndRef = useRef(null);
 
-  const sampleQuestions = [
+  const sampleQuestions = t('seebaAI.sampleQuestions', { returnObjects: true }) || [
     "What's the market outlook for SPY and QQQ today?",
     "How are gold (GLD) and silver (SLV) performing?",
     "Which sector ETFs are leading today's market?",
@@ -66,7 +68,8 @@ const AskAI = () => {
     try {
       const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/ai/chat`, {
         message: message,
-        conversationId: currentConversationId
+        conversationId: currentConversationId,
+        language: i18n.language
       });
 
       setMessages(prev => [...prev, response.data.assistantMessage]);
@@ -110,18 +113,18 @@ const AskAI = () => {
         {/* Sidebar with conversations */}
         <div className="w-80 bg-white rounded-lg shadow-sm border border-gray-200 p-4 overflow-hidden flex flex-col">
           <div className="flex justify-between items-center mb-4">
-            <h3 className="font-semibold text-gray-900">Conversations</h3>
+            <h3 className="font-semibold text-gray-900">{t('seebaAI.conversations')}</h3>
             <button
               onClick={startNewConversation}
               className="text-sm bg-primary-600 text-white px-3 py-1 rounded hover:bg-primary-700"
             >
-              New Chat
+              {t('seebaAI.newChat')}
             </button>
           </div>
           <div className="flex-1 overflow-y-auto space-y-2">
             {conversations.length === 0 ? (
               <div className="text-center text-gray-500 text-sm py-4">
-                No conversations yet. Start a new chat!
+                {t('seebaAI.noConversations')}
               </div>
             ) : (
               conversations.map(conv => (
@@ -146,7 +149,7 @@ const AskAI = () => {
                       }}
                       className="text-xs text-red-600 hover:text-red-800"
                     >
-                      Delete
+                      {t('common.delete')}
                     </button>
                   </div>
                 </div>
@@ -164,13 +167,13 @@ const AskAI = () => {
                 <span className="text-white font-bold text-lg">S</span>
               </div>
               <div>
-                <h2 className="text-xl font-semibold text-gray-900">SEEBA AI</h2>
-                <p className="text-sm text-gray-600">Senior ETF & Exchange-traded products Basket Analyst</p>
+                <h2 className="text-xl font-semibold text-gray-900">{t('seebaAI.title')}</h2>
+                <p className="text-sm text-gray-600">{t('seebaAI.subtitle')}</p>
               </div>
             </div>
             <div className="mt-3 p-3 bg-primary-50 rounded-md">
               <p className="text-sm text-primary-800">
-                🎯 20+ years of market expertise • Real-time ETF & commodity analysis • Professional insights
+                {t('seebaAI.description')}
               </p>
             </div>
           </div>
@@ -184,14 +187,14 @@ const AskAI = () => {
                     <span className="text-white font-bold text-3xl">S</span>
                   </div>
                   <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                    Welcome! I'm SEEBA AI
+                    {t('seebaAI.welcome')}
                   </h3>
                   <p className="text-gray-600 max-w-md mx-auto">
-                    With 20 years of experience analyzing ETFs and commodities, I'm here to provide professional market insights based on real-time data.
+                    {t('seebaAI.intro')}
                   </p>
                 </div>
                 <div className="space-y-2 max-w-2xl mx-auto">
-                  <p className="text-sm text-gray-500 mb-3">Try asking me:</p>
+                  <p className="text-sm text-gray-500 mb-3">{t('seebaAI.tryAsking')}</p>
                   {sampleQuestions.map((question, index) => (
                     <button
                       key={index}
@@ -250,7 +253,7 @@ const AskAI = () => {
                 type="text"
                 value={inputMessage}
                 onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Ask SEEBA AI about ETFs, commodities, or market analysis..."
+                placeholder={t('seebaAI.placeholder')}
                 className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                 disabled={loading}
               />
@@ -259,7 +262,7 @@ const AskAI = () => {
                 disabled={loading || !inputMessage.trim()}
                 className="px-6 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed"
               >
-                Send
+                {t('common.send')}
               </button>
             </form>
           </div>

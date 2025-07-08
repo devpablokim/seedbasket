@@ -21,10 +21,18 @@ i18n
     },
     
     detection: {
-      order: ['path', 'localStorage', 'navigator'],
-      lookupFromPathIndex: 0,
+      order: ['localStorage', 'navigator'],
       caches: ['localStorage']
-    }
+    },
+    
+    react: {
+      useSuspense: false
+    },
+    
+    keySeparator: '.',
+    
+    returnNull: false,
+    returnEmptyString: false
   });
 
 export default i18n;

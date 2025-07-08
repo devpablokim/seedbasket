@@ -40,10 +40,13 @@
   },
   
   "dashboard": {
-    "title": "대시보드",
+    "title": "AI 기반 시장 대시보드",
+    "subtitle": "지능형 인사이트와 실시간 AI 분석으로 포트폴리오를 추적하세요",
     "welcome": "안녕하세요, {{name}}님!",
     "marketOverview": "시장 개요",
     "etfPerformance": "ETF 성과",
+    "topETFs": "주요 ETF",
+    "viewAllETFs": "전체 ETF 보기 →",
     "topGainers": "상승 1위",
     "topLosers": "하락 1위",
     "marketNews": "시장 뉴스",
@@ -51,7 +54,10 @@
     "gainers": "상승",
     "losers": "하락",
     "unchanged": "보합",
-    "noNewsAvailable": "현재 표시할 뉴스가 없습니다"
+    "noNewsAvailable": "현재 표시할 뉴스가 없습니다",
+    "failedToLoadNews": "뉴스를 불러올 수 없습니다. 다시 시도해주세요.",
+    "system": "시스템",
+    "error": "오류"
   },
   
   "markets": {
@@ -90,7 +96,15 @@
   
   "diary": {
     "title": "투자 일기",
-    "subtitle": "투자 생각, 결정, 시장 관찰을 기록하세요",
+    "subtitle": "포트폴리오 여정과 감정을 추적하세요",
+    "monthlyCalendar": "월간 캘린더",
+    "portfolioPerformance": "포트폴리오 성과",
+    "emotionSummary": "감정 요약",
+    "happyDays": "행복한 날",
+    "neutralDays": "보통의 날",
+    "sadDays": "슬픈 날",
+    "addTodayEntry": "오늘의 일기 추가",
+    "recentEntries": "최근 항목",
     "newEntry": "새 항목",
     "editEntry": "항목 수정",
     "deleteConfirm": "이 항목을 삭제하시겠습니까?",
@@ -128,6 +142,59 @@
       "원유 가격과 에너지 ETF의 상관관계를 분석해주세요",
       "오늘 원자재 시장 움직임의 원인은 무엇인가요?"
     ]
+  },
+  
+  "newsSection": {
+    "title": "시장 뉴스",
+    "viewAllNews": "전체 뉴스 보기 →",
+    "refresh": "새로고침",
+    "refreshNews": "뉴스 새로고침",
+    "loading": "로딩 중...",
+    "loadingNews": "뉴스 로딩 중...",
+    "noNewsAvailable": "현재 표시할 뉴스가 없습니다",
+    "tryRefreshing": "새로고침 시도",
+    "aiImpactAnalysis": "AI 영향 분석",
+    "readMore": "더 읽기 →",
+    "categories": {
+      "macro": "거시경제",
+      "micro": "미시경제",
+      "commodity": "원자재"
+    }
+  },
+  
+  "marketOverview": {
+    "title": "시장 개요",
+    "gainers": "상승",
+    "losers": "하락",
+    "unchanged": "보합",
+    "marketSentiment": "시장 심리",
+    "bullish": "강세",
+    "bearish": "약세",
+    "neutral": "중립"
+  },
+  
+  "marketInfo": {
+    "title": "시장 정보",
+    "tradingSessions": "거래 시간 (ET)",
+    "marketStatus": "시장 현황",
+    "preMarket": "프리마켓",
+    "regularTrading": "정규 거래",
+    "afterHours": "애프터마켓",
+    "mainSession": "주요 세션",
+    "nextMarketHoliday": "다음 시장 휴일",
+    "holidays": {
+      "newYearsDay": "신년",
+      "martinLutherKingDay": "마틴 루터 킹 주니어의 날",
+      "presidentsDay": "대통령의 날",
+      "goodFriday": "성금요일",
+      "memorialDay": "현충일",
+      "juneteenth": "준틴스",
+      "independenceDay": "독립기념일",
+      "laborDay": "노동절",
+      "thanksgivingDay": "추수감사절",
+      "christmasDay": "크리스마스"
+    },
+    "note": "* 모든 시간은 미국 동부 시간(ET) 기준입니다. 주말과 공휴일에는 시장이 마감됩니다."
   },
   
   "auth": {

@@ -1,12 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 import DiaryForm from '../components/DiaryForm';
 import DiaryCalendar from '../components/DiaryCalendar';
 import DiaryEntryDetail from '../components/DiaryEntryDetail';
 import PortfolioChart from '../components/PortfolioChart';
 
 const Diary = () => {
+  const { t } = useTranslation();
   const [entries, setEntries] = useState([]);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [showForm, setShowForm] = useState(false);
@@ -91,14 +93,14 @@ const Diary = () => {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold text-gray-900">Investment Diary</h1>
-        <p className="mt-2 text-gray-600">Track your portfolio journey and emotions</p>
+        <h1 className="text-3xl font-bold text-gray-900">{t('diary.title')}</h1>
+        <p className="mt-2 text-gray-600">{t('diary.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
         <div className="lg:col-span-2">
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Monthly Calendar</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('diary.monthlyCalendar')}</h2>
             <DiaryCalendar 
               entries={entries} 
               onDateSelect={handleDateSelect}
@@ -107,20 +109,20 @@ const Diary = () => {
           </div>
 
           <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Portfolio Performance</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('diary.portfolioPerformance')}</h2>
             <PortfolioChart entries={entries} />
           </div>
         </div>
 
         <div>
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Emotion Summary</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('diary.emotionSummary')}</h2>
             
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <span className="text-2xl mr-2">😊</span>
-                  <span className="text-sm text-gray-600">Happy Days</span>
+                  <span className="text-sm text-gray-600">{t('diary.happyDays')}</span>
                 </div>
                 <span className="text-2xl font-bold text-green-600">{emotionStats.happy}</span>
               </div>
@@ -128,7 +130,7 @@ const Diary = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <span className="text-2xl mr-2">😐</span>
-                  <span className="text-sm text-gray-600">Neutral Days</span>
+                  <span className="text-sm text-gray-600">{t('diary.neutralDays')}</span>
                 </div>
                 <span className="text-2xl font-bold text-gray-600">{emotionStats.neutral}</span>
               </div>
@@ -136,7 +138,7 @@ const Diary = () => {
               <div className="flex items-center justify-between">
                 <div className="flex items-center">
                   <span className="text-2xl mr-2">😢</span>
-                  <span className="text-sm text-gray-600">Sad Days</span>
+                  <span className="text-sm text-gray-600">{t('diary.sadDays')}</span>
                 </div>
                 <span className="text-2xl font-bold text-red-600">{emotionStats.sad}</span>
               </div>
@@ -147,13 +149,13 @@ const Diary = () => {
                 onClick={() => setShowForm(true)}
                 className="w-full bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-md"
               >
-                Add Today's Entry
+                {t('diary.addTodayEntry')}
               </button>
             </div>
           </div>
 
           <div className="mt-6 bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-            <h2 className="text-lg font-semibold text-gray-900 mb-4">Recent Entries</h2>
+            <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('diary.recentEntries')}</h2>
             <div className="space-y-3">
               {entries.slice(0, 5).map((entry) => (
                 <div key={entry.id} className="border-b border-gray-100 pb-3 last:border-0">

@@ -1,8 +1,10 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { format } from 'date-fns';
+import { useTranslation } from 'react-i18next';
 
 const News = () => {
+  const { t } = useTranslation();
   const [news, setNews] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -22,7 +24,7 @@ const News = () => {
       setLoading(false);
     } catch (err) {
       console.error('Failed to fetch news:', err);
-      setError('Failed to fetch news');
+      setError(t('news.error'));
       setLoading(false);
     } finally {
       setRefreshing(false);
@@ -97,9 +99,9 @@ const News = () => {
       <div className="mb-8">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-3xl font-bold text-gray-900">News</h1>
+            <h1 className="text-3xl font-bold text-gray-900">{t('news.title')}</h1>
             <p className="mt-2 text-gray-600">
-              AI-analyzed market news with ETF impact predictions
+              {t('news.subtitle')}
             </p>
           </div>
           <button
@@ -120,7 +122,7 @@ const News = () => {
                 d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" 
               />
             </svg>
-            {refreshing ? 'Refreshing...' : 'Refresh'}
+            {refreshing ? t('news.refreshing') : t('common.refresh')}
           </button>
         </div>
       </div>
@@ -129,7 +131,7 @@ const News = () => {
         <div className="flex-1">
           <input
             type="text"
-            placeholder="Search news..."
+            placeholder={t('common.search')}
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
@@ -144,7 +146,7 @@ const News = () => {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            All
+            {t('news.categories.all')}
           </button>
           <button
             onClick={() => setFilter('macro')}
@@ -154,7 +156,7 @@ const News = () => {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            Macro
+            {t('news.categories.macro')}
           </button>
           <button
             onClick={() => setFilter('micro')}
@@ -164,7 +166,7 @@ const News = () => {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            Micro
+            {t('news.categories.micro')}
           </button>
           <button
             onClick={() => setFilter('commodity')}
@@ -174,14 +176,14 @@ const News = () => {
                 : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
             }`}
           >
-            Commodity
+            {t('news.categories.commodity')}
           </button>
         </div>
       </div>
 
       {data.length === 0 ? (
         <div className="text-center py-12">
-          <p className="text-gray-500">No news articles found</p>
+          <p className="text-gray-500">{t('news.noNews')}</p>
         </div>
       ) : (
         <div className="space-y-4">
@@ -191,7 +193,7 @@ const News = () => {
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-3">
                     <span className={`text-xs px-2 py-1 rounded ${getCategoryColor(article.category)}`}>
-                      {article.category}
+                      {t(`news.categories.${article.category}`, article.category)}
                     </span>
                     <span className="text-sm text-gray-500">
                       {format(new Date(article.publishedAt), 'MMM d, yyyy h:mm a')}
@@ -213,7 +215,7 @@ const News = () => {
                   {article.impactedETFs && article.impactedETFs.length > 0 && (
                     <div className="mt-4 p-4 bg-gray-50 rounded-lg">
                       <div className="flex items-center gap-2 mb-3">
-                        <span className="text-sm font-medium text-gray-700">AI Impact Analysis</span>
+                        <span className="text-sm font-medium text-gray-700">{t('news.aiAnalysis')}</span>
                         <svg className="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
                         </svg>
@@ -245,7 +247,7 @@ const News = () => {
                       rel="noopener noreferrer"
                       className="text-sm text-primary-600 hover:text-primary-700 font-medium"
                     >
-                      Read full article →
+                      {t('news.readMore')}
                     </a>
                   </div>
                 </div>
@@ -256,7 +258,7 @@ const News = () => {
       )}
 
       <div className="mt-8 text-center text-sm text-gray-500">
-        <p>Showing {data.length} articles</p>
+        <p>{t('markets.showing', { count: data.length, total: news.length })}</p>
       </div>
     </div>
   );

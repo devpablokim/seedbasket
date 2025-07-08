@@ -64,7 +64,7 @@ router.get('/conversations/:conversationId', protect, async (req, res) => {
 // Send a message and get AI response
 router.post('/chat', protect, async (req, res) => {
   try {
-    const { message, conversationId } = req.body;
+    const { message, conversationId, language } = req.body;
     const convId = conversationId || uuidv4();
 
     // Save user message
@@ -90,7 +90,7 @@ router.post('/chat', protect, async (req, res) => {
     const conversationHistory = history.reverse();
 
     // Generate AI response
-    const aiResponse = await generateAIResponse(message, conversationHistory);
+    const aiResponse = await generateAIResponse(message, conversationHistory, language);
 
     // Save AI response
     const assistantMessage = await ChatMessage.create({

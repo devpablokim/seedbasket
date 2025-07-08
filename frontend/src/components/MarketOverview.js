@@ -1,6 +1,8 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 const MarketOverview = ({ marketData }) => {
+  const { t } = useTranslation();
   const calculateOverallChange = () => {
     const allAssets = [...marketData.etfs, ...marketData.commodities];
     const positiveCount = allAssets.filter(asset => Number(asset.changePercent) > 0).length;
@@ -15,7 +17,7 @@ const MarketOverview = ({ marketData }) => {
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-      <h2 className="text-lg font-semibold text-gray-900 mb-4">Market Overview</h2>
+      <h2 className="text-lg font-semibold text-gray-900 mb-4">{t('marketOverview.title')}</h2>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div className="text-center">
@@ -25,7 +27,7 @@ const MarketOverview = ({ marketData }) => {
             </svg>
           </div>
           <p className="text-2xl font-bold text-green-600">{positiveCount}</p>
-          <p className="text-sm text-gray-500">Gainers</p>
+          <p className="text-sm text-gray-500">{t('marketOverview.gainers')}</p>
         </div>
         
         <div className="text-center">
@@ -35,7 +37,7 @@ const MarketOverview = ({ marketData }) => {
             </svg>
           </div>
           <p className="text-2xl font-bold text-gray-600">{neutralCount}</p>
-          <p className="text-sm text-gray-500">Unchanged</p>
+          <p className="text-sm text-gray-500">{t('marketOverview.unchanged')}</p>
         </div>
         
         <div className="text-center">
@@ -45,15 +47,15 @@ const MarketOverview = ({ marketData }) => {
             </svg>
           </div>
           <p className="text-2xl font-bold text-red-600">{negativeCount}</p>
-          <p className="text-sm text-gray-500">Losers</p>
+          <p className="text-sm text-gray-500">{t('marketOverview.losers')}</p>
         </div>
       </div>
       
       <div className="mt-6">
         <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-gray-600">Market Sentiment</span>
+          <span className="text-sm text-gray-600">{t('marketOverview.marketSentiment')}</span>
           <span className="text-sm font-medium text-gray-900">
-            {positiveCount > negativeCount ? 'Bullish' : positiveCount < negativeCount ? 'Bearish' : 'Neutral'}
+            {positiveCount > negativeCount ? t('marketOverview.bullish') : positiveCount < negativeCount ? t('marketOverview.bearish') : t('marketOverview.neutral')}
           </span>
         </div>
         <div className="w-full bg-gray-200 rounded-full h-2">

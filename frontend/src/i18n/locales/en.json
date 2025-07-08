@@ -40,10 +40,13 @@
   },
   
   "dashboard": {
-    "title": "Dashboard",
+    "title": "AI-Powered Market Dashboard",
+    "subtitle": "Track your portfolio with intelligent insights and real-time AI analysis",
     "welcome": "Welcome back, {{name}}!",
     "marketOverview": "Market Overview",
     "etfPerformance": "ETF Performance",
+    "topETFs": "Top ETFs",
+    "viewAllETFs": "View All ETFs →",
     "topGainers": "Top Gainers",
     "topLosers": "Top Losers",
     "marketNews": "Market News",
@@ -51,7 +54,10 @@
     "gainers": "Gainers",
     "losers": "Losers",
     "unchanged": "Unchanged",
-    "noNewsAvailable": "No news available at the moment"
+    "noNewsAvailable": "No news available at the moment",
+    "failedToLoadNews": "Failed to load news. Please try again.",
+    "system": "System",
+    "error": "Error"
   },
   
   "markets": {
@@ -69,7 +75,7 @@
   
   "news": {
     "title": "Financial News",
-    "subtitle": "Latest market news and analysis from trusted sources",
+    "subtitle": "AI-analyzed market news with ETF impact predictions",
     "categories": {
       "all": "All News",
       "macro": "Macro",
@@ -78,19 +84,27 @@
       "commodity": "Commodity"
     },
     "impactedETFs": "Impacted ETFs",
-    "aiAnalysis": "AI Analysis",
-    "readMore": "Read more",
+    "aiAnalysis": "AI Impact Analysis",
+    "readMore": "Read full article →",
     "source": "Source",
     "publishedAt": "Published",
-    "refreshing": "Refreshing news...",
+    "refreshing": "Refreshing...",
     "fetchingNews": "Fetching latest news...",
-    "noNews": "No news available at the moment",
+    "noNews": "No news articles found",
     "error": "Failed to fetch news"
   },
   
   "diary": {
     "title": "Investment Diary",
-    "subtitle": "Track your investment thoughts, decisions, and market observations",
+    "subtitle": "Track your portfolio journey and emotions",
+    "monthlyCalendar": "Monthly Calendar",
+    "portfolioPerformance": "Portfolio Performance",
+    "emotionSummary": "Emotion Summary",
+    "happyDays": "Happy Days",
+    "neutralDays": "Neutral Days",
+    "sadDays": "Sad Days",
+    "addTodayEntry": "Add Today's Entry",
+    "recentEntries": "Recent Entries",
     "newEntry": "New Entry",
     "editEntry": "Edit Entry",
     "deleteConfirm": "Are you sure you want to delete this entry?",
@@ -128,6 +142,59 @@
       "Analyze the correlation between oil prices and energy ETFs",
       "What's driving today's commodity movements?"
     ]
+  },
+  
+  "marketOverview": {
+    "title": "Market Overview",
+    "gainers": "Gainers",
+    "losers": "Losers",
+    "unchanged": "Unchanged",
+    "marketSentiment": "Market Sentiment",
+    "bullish": "Bullish",
+    "bearish": "Bearish",
+    "neutral": "Neutral"
+  },
+  
+  "marketInfo": {
+    "title": "Market Information",
+    "tradingSessions": "Trading Sessions (ET)",
+    "marketStatus": "Market Status",
+    "preMarket": "Pre-Market",
+    "regularTrading": "Regular Trading",
+    "afterHours": "After-Hours",
+    "mainSession": "Main Session",
+    "nextMarketHoliday": "Next Market Holiday",
+    "holidays": {
+      "newYearsDay": "New Year's Day",
+      "martinLutherKingDay": "Martin Luther King Jr. Day",
+      "presidentsDay": "Presidents' Day",
+      "goodFriday": "Good Friday",
+      "memorialDay": "Memorial Day",
+      "juneteenth": "Juneteenth",
+      "independenceDay": "Independence Day",
+      "laborDay": "Labor Day",
+      "thanksgivingDay": "Thanksgiving Day",
+      "christmasDay": "Christmas Day"
+    },
+    "note": "* All times are in Eastern Time (ET). Markets are closed on weekends and holidays."
+  },
+  
+  "newsSection": {
+    "title": "Market News",
+    "viewAllNews": "View All News →",
+    "refresh": "Refresh",
+    "refreshNews": "Refresh News",
+    "loading": "Loading...",
+    "loadingNews": "Loading news...",
+    "noNewsAvailable": "No news available at the moment",
+    "tryRefreshing": "Try refreshing",
+    "aiImpactAnalysis": "AI Impact Analysis",
+    "readMore": "Read more →",
+    "categories": {
+      "macro": "Macro",
+      "micro": "Micro",
+      "commodity": "Commodity"
+    }
   },
   
   "auth": {
