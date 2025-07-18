@@ -6,13 +6,13 @@ import { getStorage } from "firebase/storage";
 
 // Production Firebase configuration
 const firebaseConfig = {
-  apiKey: "AIzaSyC7Uc70_Q7ynGZOeQNZKJNDYzSNn8P7A_k",
-  authDomain: "seedbasket-342ca.firebaseapp.com",
-  projectId: "seedbasket-342ca",
-  storageBucket: "seedbasket-342ca.firebasestorage.app",
-  messagingSenderId: "757980611728",
-  appId: "1:757980611728:web:7899ed5319aed69e928415",
-  measurementId: "G-DG122MGYLL"
+  apiKey: process.env.REACT_APP_FIREBASE_API_KEY || "AIzaSyC7Uc70_Q7ynGZOeQNZKJNDYzSNn8P7A_k",
+  authDomain: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN || "seedbasket-342ca.firebaseapp.com",
+  projectId: process.env.REACT_APP_FIREBASE_PROJECT_ID || "seedbasket-342ca",
+  storageBucket: process.env.REACT_APP_FIREBASE_STORAGE_BUCKET || "seedbasket-342ca.firebasestorage.app",
+  messagingSenderId: process.env.REACT_APP_FIREBASE_MESSAGING_SENDER_ID || "757980611728",
+  appId: process.env.REACT_APP_FIREBASE_APP_ID || "1:757980611728:web:7899ed5319aed69e928415",
+  measurementId: process.env.REACT_APP_FIREBASE_MEASUREMENT_ID || "G-DG122MGYLL"
 };
 
 const app = initializeApp(firebaseConfig);
