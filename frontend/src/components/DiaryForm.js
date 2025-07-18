@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { format } from 'date-fns';
 
 const DiaryForm = ({ date, onClose, existingEntry }) => {
@@ -21,8 +21,8 @@ const DiaryForm = ({ date, onClose, existingEntry }) => {
   const fetchMarketAndNews = async () => {
     try {
       const [marketResponse, newsResponse] = await Promise.all([
-        axios.get(`${process.env.REACT_APP_API_URL}/api/market/all`),
-        axios.get(`${process.env.REACT_APP_API_URL}/api/news`)
+        api.get('/market/all'),
+        api.get('/news')
       ]);
       setMarketData(marketResponse.data);
       setNewsData(newsResponse.data);
@@ -76,9 +76,9 @@ const DiaryForm = ({ date, onClose, existingEntry }) => {
       };
 
       if (existingEntry) {
-        await axios.put(`${process.env.REACT_APP_API_URL}/api/diary/entries/${formattedDate}`, data);
+        await api.put(`/diary/entries/${formattedDate}`, data);
       } else {
-        await axios.post(`${process.env.REACT_APP_API_URL}/api/diary/entries`, data);
+        await api.post('/diary/entries', data);
       }
 
       onClose();
@@ -263,7 +263,9 @@ const DiaryForm = ({ date, onClose, existingEntry }) => {
                                   {news.category}
                                 </span>
                                 <span className="text-xs text-gray-500">
-                                  {format(new Date(news.publishedAt), 'MMM d, yyyy')}
+                                  {news.publishedAt && !isNaN(new Date(news.publishedAt)) 
+                                    ? format(new Date(news.publishedAt), 'MMM d, yyyy')
+                                    : 'Recent'}
                                 </span>
                               </div>
                               <h4 className="text-sm font-medium text-gray-900">{news.title}</h4>

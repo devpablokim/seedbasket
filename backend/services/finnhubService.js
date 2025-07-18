@@ -1,6 +1,6 @@
 const axios = require('axios');
 const WebSocket = require('ws');
-const { MarketData, News } = require('../models');
+const { db } = require('../config/firebase-admin');
 const { analyzeNewsImpact } = require('./aiService');
 
 const FINNHUB_API_KEY = process.env.FINNHUB_API_KEY;
@@ -288,6 +288,11 @@ function disconnectWebSocket() {
   }
 }
 
+// Fetch company news (alias for getMarketNews)
+async function fetchCompanyNews() {
+  return getMarketNews();
+}
+
 module.exports = {
   updateAllETFData,
   fetchAndAnalyzeFinnhubNews,
@@ -297,5 +302,6 @@ module.exports = {
   getQuote,
   getCompanyNews,
   getMarketNews,
-  getETFHoldings
+  getETFHoldings,
+  fetchCompanyNews
 };

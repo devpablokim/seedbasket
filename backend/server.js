@@ -2,7 +2,6 @@ const express = require('express');
 const cors = require('cors');
 const dotenv = require('dotenv');
 const cron = require('node-cron');
-const sequelize = require('./config/database');
 
 dotenv.config();
 
@@ -12,52 +11,50 @@ const PORT = process.env.PORT || 5002;
 app.use(cors());
 app.use(express.json());
 
-sequelize.authenticate()
-  .then(() => {
-    console.log('MySQL connected successfully.');
-    return sequelize.sync({ alter: true });
-  })
-  .then(() => {
-    console.log('Database synchronized');
-  })
-  .catch(err => {
-    console.error('Unable to connect to the database:', err);
-  });
+// Firebase routes
+const firebaseAuthRoutes = require('./routes/firebaseAuth');
+const firebaseMarketRoutes = require('./routes/firebaseMarket');
+const firebaseDiaryRoutes = require('./routes/firebaseDiary');
+const firebaseNewsRoutes = require('./routes/firebaseNews');
+const firebaseAIRoutes = require('./routes/firebaseAI');
+const firebaseNewsAnalysisRoutes = require('./routes/firebaseNewsAnalysis');
+const firebaseNewsTranslationRoutes = require('./routes/firebaseNewsTranslation');
 
-const authRoutes = require('./routes/auth');
-const marketDataRoutes = require('./routes/marketData');
-const diaryRoutes = require('./routes/diary');
-const newsRoutes = require('./routes/news');
-const aiRoutes = require('./routes/ai');
-
-app.use('/api/auth', authRoutes);
-app.use('/api/market', marketDataRoutes);
-app.use('/api/diary', diaryRoutes);
-app.use('/api/news', newsRoutes);
-app.use('/api/ai', aiRoutes);
+app.use('/api/auth', firebaseAuthRoutes);
+app.use('/api/market', firebaseMarketRoutes);
+app.use('/api/diary', firebaseDiaryRoutes);
+app.use('/api/news', firebaseNewsRoutes);
+app.use('/api/ai', firebaseAIRoutes);
+app.use('/api/news-analysis', firebaseNewsAnalysisRoutes);
+app.use('/api/news-translation', firebaseNewsTranslationRoutes);
 
 app.get('/health', (req, res) => {
-  res.json({ status: 'OK', timestamp: new Date() });
+  res.json({ status: 'OK', timestamp: new Date(), database: 'Firebase' });
 });
 
-const { updateMarketData } = require('./services/marketDataService');
-const { fetchLatestNews } = require('./services/newsService');
+// Import Firebase versions of services
+const { updateMarketData } = require('./services/marketDataServiceFirebase');
+const { fetchLatestNews } = require('./services/newsServiceFirebase');
 
-// 매 30분마다 시장 데이터 업데이트 (Alpha Vantage + Finnhub 결합)
+// Schedule market data updates every 30 minutes
 cron.schedule('*/30 * * * *', async () => {
   console.log('Running market data update...');
-  await updateMarketData(); // Combined Alpha Vantage + Finnhub
+  await updateMarketData();
 });
 
-// 매시간 뉴스 업데이트 (NewsAPI + Finnhub)
+// Schedule news updates every hour
 cron.schedule('0 * * * *', async () => {
   console.log('Running news update...');
-  await fetchLatestNews(); // NewsAPI + Finnhub
+  await fetchLatestNews();
 });
 
+// Initial data fetch on startup
+setTimeout(async () => {
+  console.log('Running initial data fetch...');
+  await updateMarketData();
+  await fetchLatestNews();
+}, 5000);
+
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`);
-  
-  // Note: WebSocket is disabled for free tier
-  // Premium features can be enabled when upgraded
+  console.log(`Server is running on port ${PORT} with Firebase backend`);
 });

@@ -12,6 +12,8 @@ import News from './pages/News';
 import PrivateRoute from './components/PrivateRoute';
 import Navbar from './components/Navbar';
 import LanguageWrapper from './components/LanguageWrapper';
+import PrivacyPolicy from './pages/PrivacyPolicy';
+import TermsOfService from './pages/TermsOfService';
 
 function LayoutWithNavbar() {
   return (
@@ -51,6 +53,10 @@ function App() {
               <Route path="/markets" element={<Markets />} />
               <Route path="/news" element={<News />} />
             </Route>
+            
+            {/* Legal pages (public) */}
+            <Route path="/privacy" element={<PrivacyPolicy />} />
+            <Route path="/terms" element={<TermsOfService />} />
           </Routes>
         </div>
       </Router>

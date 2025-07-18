@@ -1,0 +1,11 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "build",
+  "framework": "create-react-app",
+  "rewrites": [
+    { "source": "/(.*)", "destination": "/" }
+  ],
+  "env": {
+    "REACT_APP_API_URL": "https://us-central1-seedbasket-342ca.cloudfunctions.net/api"
+  }
+}

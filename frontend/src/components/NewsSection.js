@@ -1,10 +1,46 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
+import api from '../utils/api';
 import './NewsSection.css';
 
 const NewsSection = ({ news, onRefresh, loading }) => {
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
+  const [analyzingNews, setAnalyzingNews] = useState({});
+  const [analysisResults, setAnalysisResults] = useState({});
+  const [translations, setTranslations] = useState({});
+  const [translatingNews, setTranslatingNews] = useState({});
+  const [showTranslated, setShowTranslated] = useState(false);
+  
+  // Auto-translate all news when component mounts or news updates (only for Korean users)
+  useEffect(() => {
+    const translateAllNews = async () => {
+      for (const article of news) {
+        if (!translations[article.id] && !translatingNews[article.id]) {
+          setTranslatingNews(prev => ({ ...prev, [article.id]: true }));
+          try {
+            const response = await api.post(`/news-translation/translate/${article.id}`);
+            setTranslations(prev => ({ 
+              ...prev, 
+              [article.id]: {
+                title: response.data.titleTranslation,
+                summary: response.data.summaryTranslation
+              }
+            }));
+          } catch (error) {
+            console.error('Failed to translate:', error);
+          } finally {
+            setTranslatingNews(prev => ({ ...prev, [article.id]: false }));
+          }
+        }
+      }
+    };
+    
+    if (news.length > 0 && i18n.language === 'ko') {
+      translateAllNews();
+    }
+  }, [news, i18n.language]);
+  
   const getCategoryColor = (category) => {
     switch (category) {
       case 'macro':
@@ -36,6 +72,14 @@ const NewsSection = ({ news, onRefresh, loading }) => {
       <div className="flex items-center justify-between mb-4">
         <h2 className="text-xl font-semibold text-gray-900">{t('newsSection.title')}</h2>
         <div className="flex items-center gap-3">
+          <button
+            onClick={() => setShowTranslated(!showTranslated)}
+            className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+          >
+            {i18n.language === 'ko' 
+              ? (showTranslated ? t('newsSection.showKorean') : t('newsSection.showOriginal'))
+              : (showTranslated ? t('newsSection.showOriginal') : t('newsSection.showKorean'))}
+          </button>
           <a href="/news" className="text-sm text-primary-600 hover:text-primary-700 font-medium">
             {t('newsSection.viewAllNews')}
           </a>
@@ -98,17 +142,68 @@ const NewsSection = ({ news, onRefresh, loading }) => {
                       {t(`newsSection.categories.${article.category}`, article.category)}
                     </span>
                     <span className="text-xs text-gray-500">
-                      {format(new Date(article.publishedAt), 'MMM d, h:mm a')}
+                      {article.publishedAt && !isNaN(new Date(article.publishedAt)) 
+                        ? format(new Date(article.publishedAt), 'MMM d, h:mm a')
+                        : 'Recent'}
                     </span>
                   </div>
                   <h3 className="text-base font-medium text-gray-900 mb-1">
-                    {article.title}
+                    {(i18n.language === 'ko' && !showTranslated) || (i18n.language !== 'ko' && showTranslated) 
+                      ? (translations[article.id]?.title || article.title)
+                      : article.title}
                   </h3>
                   <p className="text-sm text-gray-600 line-clamp-2">
-                    {article.summary}
+                    {(i18n.language === 'ko' && !showTranslated) || (i18n.language !== 'ko' && showTranslated)
+                      ? (translations[article.id]?.summary || article.summary)
+                      : article.summary}
                   </p>
                   
-                  {article.impactedETFs && article.impactedETFs.length > 0 && (
+                  {/* SEEBA AI Analysis Button */}
+                  {!article.seebaAnalysis && !analysisResults[article.id] && (
+                    <button
+                      onClick={async () => {
+                        setAnalyzingNews(prev => ({ ...prev, [article.id]: true }));
+                        try {
+                          const response = await api.post(`/news-analysis/analyze/${article.id}`, {
+                            language: i18n.language
+                          });
+                          setAnalysisResults(prev => ({ 
+                            ...prev, 
+                            [article.id]: response.data.analysis 
+                          }));
+                        } catch (error) {
+                          console.error('Failed to analyze news:', error);
+                        } finally {
+                          setAnalyzingNews(prev => ({ ...prev, [article.id]: false }));
+                        }
+                      }}
+                      disabled={analyzingNews[article.id]}
+                      className="mt-2 mb-3 flex items-center gap-2 px-3 py-1.5 text-sm bg-primary-600 text-white rounded-md hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                    >
+                      <svg className={`w-4 h-4 ${analyzingNews[article.id] ? 'animate-spin' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                      </svg>
+                      {analyzingNews[article.id] ? t('newsSection.analyzing') : t('newsSection.askSeebaAI')}
+                    </button>
+                  )}
+                  
+                  {/* SEEBA AI Analysis Result */}
+                  {(article.seebaAnalysis || analysisResults[article.id]) && (
+                    <div className="mt-3 p-3 bg-primary-50 rounded-lg border border-primary-200">
+                      <div className="flex items-center gap-2 mb-2">
+                        <svg className="w-4 h-4 text-primary-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                        </svg>
+                        <span className="text-sm font-semibold text-primary-800">{t('newsSection.seebaAnalysis')}</span>
+                      </div>
+                      <div className="text-sm text-gray-700 whitespace-pre-line">
+                        {(article.seebaAnalysis || analysisResults[article.id])?.fullAnalysis || 
+                         (article.seebaAnalysis || analysisResults[article.id])?.summary}
+                      </div>
+                    </div>
+                  )}
+                  
+                  {article.impactedETFs && article.impactedETFs.length > 0 && !article.seebaAnalysis && !analysisResults[article.id] && (
                     <div className="mt-3">
                       <div className="flex items-center gap-2 mb-2">
                         <span className="text-xs font-medium text-gray-700">{t('newsSection.aiImpactAnalysis')}</span>

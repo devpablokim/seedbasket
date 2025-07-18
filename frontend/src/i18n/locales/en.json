@@ -57,7 +57,12 @@
     "noNewsAvailable": "No news available at the moment",
     "failedToLoadNews": "Failed to load news. Please try again.",
     "system": "System",
-    "error": "Error"
+    "error": "Error",
+    "sortByVolume": "Volume",
+    "sortByGainers": "Gainers",
+    "sortByLosers": "Losers",
+    "sortByAlphabet": "A-Z",
+    "viewAllCommodities": "View All Commodities →"
   },
   
   "markets": {
@@ -67,7 +72,7 @@
     "commodities": "Commodities",
     "etfsDescription": "Track major market indices, sectors, and investment themes",
     "commoditiesDescription": "Precious metals, energy, agriculture, and raw materials",
-    "searchPlaceholder": "Search by symbol or name...",
+    "searchPlaceholder": "Search by symbol (e.g., AAPL, MSFT) - will auto-fetch if available",
     "noResults": "No results found",
     "showing": "Showing {{count}} of {{total}} total instruments",
     "dataRefreshInfo": "Data refreshes every 30 minutes • Powered by Alpha Vantage & Finnhub"
@@ -91,7 +96,17 @@
     "refreshing": "Refreshing...",
     "fetchingNews": "Fetching latest news...",
     "noNews": "No news articles found",
-    "error": "Failed to fetch news"
+    "error": "Failed to fetch news",
+    "translateToKorean": "View in Korean",
+    "translating": "Translating...",
+    "showETFIndicators": "Show ETF Indicators",
+    "hideIndicators": "Hide Indicators",
+    "loadingIndicators": "Loading indicators...",
+    "showEnglish": "Show in English",
+    "showKorean": "Show in Korean",
+    "viewingInKorean": "Viewing in Korean",
+    "viewingInEnglish": "Viewing in English",
+    "showOriginal": "Show Original"
   },
   
   "diary": {
@@ -194,7 +209,12 @@
       "macro": "Macro",
       "micro": "Micro",
       "commodity": "Commodity"
-    }
+    },
+    "askSeebaAI": "Ask SEEBA AI",
+    "analyzing": "Analyzing...",
+    "seebaAnalysis": "SEEBA AI Analysis",
+    "showOriginal": "Show Original",
+    "showKorean": "View in Korean"
   },
   
   "auth": {

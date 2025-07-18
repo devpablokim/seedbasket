@@ -44,3 +44,17 @@ coverage/
 backend/test-*.js
 backend/manual-update.js
 backend/quick-populate.js
+
+# Backup files
+backend/server.mysql.backup.js
+
+# Firebase
+firebase-service-account.json
+seedbasket-342ca-firebase-adminsdk-*.json
+.firebase/
+*.cache
+firebase-debug.log
+setup-firebase-config.sh
+functions/.env
+GOOGLE_OAUTH_SETUP.md
+setup-google-oauth.sh

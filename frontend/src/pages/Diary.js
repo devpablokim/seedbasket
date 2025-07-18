@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { format, startOfMonth, endOfMonth } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 import DiaryForm from '../components/DiaryForm';
@@ -25,7 +25,7 @@ const Diary = () => {
       const start = startOfMonth(new Date());
       const end = endOfMonth(new Date());
       
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/diary/entries`, {
+      const response = await api.get('/diary/entries', {
         params: {
           startDate: format(start, 'yyyy-MM-dd'),
           endDate: format(end, 'yyyy-MM-dd')

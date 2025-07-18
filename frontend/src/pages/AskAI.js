@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { format } from 'date-fns';
 import { useTranslation } from 'react-i18next';
 
@@ -34,7 +34,7 @@ const AskAI = () => {
 
   const fetchConversations = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/ai/conversations`);
+      const response = await api.get('/ai/conversations');
       console.log('Fetched conversations:', response.data);
       setConversations(response.data);
     } catch (error) {
@@ -44,7 +44,7 @@ const AskAI = () => {
 
   const loadConversation = async (conversationId) => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/ai/conversations/${conversationId}`);
+      const response = await api.get(`/ai/conversations/${conversationId}`);
       setMessages(response.data);
       setCurrentConversationId(conversationId);
     } catch (error) {
@@ -66,7 +66,7 @@ const AskAI = () => {
     setLoading(true);
 
     try {
-      const response = await axios.post(`${process.env.REACT_APP_API_URL}/api/ai/chat`, {
+      const response = await api.post('/ai/chat', {
         message: message,
         conversationId: currentConversationId,
         language: i18n.language
@@ -80,10 +80,12 @@ const AskAI = () => {
       }, 500);
     } catch (error) {
       console.error('Failed to send message:', error);
+      const errorMessage = error.response?.data?.error || 'Sorry, I encountered an error. Please try again.';
       setMessages(prev => [...prev, {
         role: 'assistant',
-        message: 'Sorry, I encountered an error. Please try again.',
-        timestamp: new Date()
+        message: errorMessage,
+        timestamp: new Date(),
+        isError: true
       }]);
     } finally {
       setLoading(false);
@@ -97,7 +99,7 @@ const AskAI = () => {
 
   const deleteConversation = async (conversationId) => {
     try {
-      await axios.delete(`${process.env.REACT_APP_API_URL}/api/ai/conversations/${conversationId}`);
+      await api.delete(`/ai/conversations/${conversationId}`);
       fetchConversations();
       if (conversationId === currentConversationId) {
         startNewConversation();
@@ -140,7 +142,9 @@ const AskAI = () => {
                   </div>
                   <div className="flex justify-between items-center mt-1">
                     <div className="text-xs text-gray-500">
-                      {format(new Date(conv.timestamp), 'MMM d, h:mm a')}
+                      {conv.timestamp && !isNaN(new Date(conv.timestamp)) 
+                        ? format(new Date(conv.timestamp), 'MMM d, h:mm a')
+                        : 'No date'}
                     </div>
                     <button
                       onClick={(e) => {
@@ -225,7 +229,9 @@ const AskAI = () => {
                   <p className={`text-xs mt-1 ${
                     message.role === 'user' ? 'text-primary-200' : 'text-gray-500'
                   }`}>
-                    {format(new Date(message.timestamp), 'h:mm a')}
+                    {message.timestamp && !isNaN(new Date(message.timestamp)) 
+                      ? format(new Date(message.timestamp), 'h:mm a')
+                      : 'Just now'}
                   </p>
                 </div>
               </div>

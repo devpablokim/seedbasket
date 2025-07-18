@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
+import api from '../utils/api';
 import { useTranslation } from 'react-i18next';
 import ETFCard from '../components/ETFCard';
+import { mockMarketData } from '../utils/mockData';
 
 const Markets = () => {
   const { t } = useTranslation();
@@ -10,6 +11,8 @@ const Markets = () => {
   const [error, setError] = useState(null);
   const [filter, setFilter] = useState('all');
   const [searchTerm, setSearchTerm] = useState('');
+  const [searchLoading, setSearchLoading] = useState(false);
+  const [searchedSymbols, setSearchedSymbols] = useState(new Set());
 
   useEffect(() => {
     fetchMarketData();
@@ -17,15 +20,73 @@ const Markets = () => {
 
   const fetchMarketData = async () => {
     try {
-      const response = await axios.get(`${process.env.REACT_APP_API_URL}/api/market/all`);
+      const response = await api.get('/market/all');
       setMarketData(response.data);
       setLoading(false);
     } catch (err) {
       console.error('Failed to fetch market data:', err);
-      setError(t('common.error'));
+      // Use mock data instead of showing error
+      console.log('Using mock data for layout display');
+      setMarketData(mockMarketData);
+      setError(null); // Clear error to show layout
       setLoading(false);
     }
   };
+
+  const searchSymbol = async (symbol) => {
+    // If symbol already exists in current data, don't search again
+    const existingData = [...marketData.etfs, ...marketData.commodities];
+    if (existingData.some(item => item.symbol.toLowerCase() === symbol.toLowerCase())) {
+      return;
+    }
+
+    // If we already searched for this symbol in this session, don't search again
+    if (searchedSymbols.has(symbol.toUpperCase())) {
+      return;
+    }
+
+    setSearchLoading(true);
+    try {
+      const response = await api.post('/market/search', { symbol: symbol.toUpperCase() });
+      if (response.data && response.data.symbol) {
+        // Add to searched symbols set
+        setSearchedSymbols(prev => new Set([...prev, symbol.toUpperCase()]));
+        
+        // Update market data with new symbol
+        setMarketData(prev => {
+          if (response.data.type === 'etf') {
+            return {
+              ...prev,
+              etfs: [...prev.etfs, response.data].sort((a, b) => a.symbol.localeCompare(b.symbol))
+            };
+          } else {
+            return {
+              ...prev,
+              commodities: [...prev.commodities, response.data].sort((a, b) => a.symbol.localeCompare(b.symbol))
+            };
+          }
+        });
+      }
+    } catch (err) {
+      console.error('Failed to search symbol:', err);
+    } finally {
+      setSearchLoading(false);
+    }
+  };
+
+  // Handle search term changes with debounce
+  useEffect(() => {
+    if (!searchTerm || searchTerm.length < 2) return;
+
+    const timer = setTimeout(() => {
+      // Check if the search term looks like a symbol (2-5 uppercase letters)
+      if (/^[A-Za-z]{2,5}$/.test(searchTerm)) {
+        searchSymbol(searchTerm);
+      }
+    }, 1000); // 1 second debounce
+
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   const filteredData = () => {
     let data = [];
@@ -78,7 +139,7 @@ const Markets = () => {
       </div>
 
       <div className="mb-6 flex flex-col sm:flex-row gap-4">
-        <div className="flex-1">
+        <div className="flex-1 relative">
           <input
             type="text"
             placeholder={t('markets.searchPlaceholder')}
@@ -86,6 +147,11 @@ const Markets = () => {
             onChange={(e) => setSearchTerm(e.target.value)}
             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
           />
+          {searchLoading && (
+            <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+              <div className="animate-spin rounded-full h-5 w-5 border-b-2 border-primary-600"></div>
+            </div>
+          )}
         </div>
         <div className="flex gap-2">
           <button

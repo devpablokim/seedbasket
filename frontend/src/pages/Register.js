@@ -7,6 +7,8 @@ const Register = () => {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [termsAgreed, setTermsAgreed] = useState(false);
+  const [privacyAgreed, setPrivacyAgreed] = useState(false);
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   
@@ -24,6 +26,16 @@ const Register = () => {
 
     if (password.length < 6) {
       setError('Password must be at least 6 characters');
+      return;
+    }
+
+    if (!termsAgreed) {
+      setError('서비스 이용약관에 동의해주세요.');
+      return;
+    }
+
+    if (!privacyAgreed) {
+      setError('개인정보처리방침에 동의해주세요.');
       return;
     }
 
@@ -128,6 +140,50 @@ const Register = () => {
               </div>
             </div>
           )}
+
+          <div className="space-y-3">
+            <div className="flex items-start">
+              <div className="flex items-center h-5">
+                <input
+                  id="terms"
+                  name="terms"
+                  type="checkbox"
+                  className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300 rounded"
+                  checked={termsAgreed}
+                  onChange={(e) => setTermsAgreed(e.target.checked)}
+                />
+              </div>
+              <div className="ml-3 text-sm">
+                <label htmlFor="terms" className="font-medium text-gray-700">
+                  <Link to="/terms" className="text-primary-600 hover:text-primary-500">
+                    서비스 이용약관
+                  </Link>
+                  에 동의합니다
+                </label>
+              </div>
+            </div>
+
+            <div className="flex items-start">
+              <div className="flex items-center h-5">
+                <input
+                  id="privacy"
+                  name="privacy"
+                  type="checkbox"
+                  className="focus:ring-primary-500 h-4 w-4 text-primary-600 border-gray-300 rounded"
+                  checked={privacyAgreed}
+                  onChange={(e) => setPrivacyAgreed(e.target.checked)}
+                />
+              </div>
+              <div className="ml-3 text-sm">
+                <label htmlFor="privacy" className="font-medium text-gray-700">
+                  <Link to="/privacy" className="text-primary-600 hover:text-primary-500">
+                    개인정보처리방침
+                  </Link>
+                  에 동의합니다
+                </label>
+              </div>
+            </div>
+          </div>
 
           <div>
             <button

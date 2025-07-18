@@ -1,318 +1,318 @@
 const OpenAI = require('openai');
-const { MarketData, News } = require('../models');
-const { Op } = require('sequelize');
+const firebaseData = require('./firebaseDataService');
 
+// Initialize OpenAI client
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY || 'placeholder'
 });
 
 async function getMarketContext() {
   try {
     // Get all ETFs and Commodities with their latest data
     const [etfs, commodities] = await Promise.all([
-      MarketData.findAll({
-        where: { type: 'ETF' },
-        order: [['symbol', 'ASC']]
-      }),
-      MarketData.findAll({
-        where: { type: 'COMMODITY' },
-        order: [['symbol', 'ASC']]
-      })
+      firebaseData.getETFs(),
+      firebaseData.getCommodities()
     ]);
 
     // Get recent news (last 2 days)
     const twoDaysAgo = new Date();
     twoDaysAgo.setDate(twoDaysAgo.getDate() - 2);
     
-    const recentNews = await News.findAll({
-      where: {
-        publishedAt: {
-          [Op.gte]: twoDaysAgo
-        }
-      },
-      order: [['publishedAt', 'DESC']],
+    const recentNews = await firebaseData.getNews({
+      startDate: twoDaysAgo,
       limit: 20
     });
 
-    // Format ETF data
-    const etfSummary = etfs.map(item => {
-      const change = parseFloat(item.change || 0);
-      const changePercent = parseFloat(item.changePercent || 0);
-      const price = parseFloat(item.price || 0);
-      
-      return `${item.symbol}: $${price.toFixed(2)} (${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)`;
-    }).join(', ');
-
-    // Format Commodity data
-    const commoditySummary = commodities.map(item => {
-      const change = parseFloat(item.change || 0);
-      const changePercent = parseFloat(item.changePercent || 0);
-      const price = parseFloat(item.price || 0);
-      
-      return `${item.symbol}: $${price.toFixed(2)} (${changePercent >= 0 ? '+' : ''}${changePercent.toFixed(2)}%)`;
-    }).join(', ');
-
-    // Format news with more context
-    const newsSummary = recentNews.map((item, index) => 
-      `${index + 1}. ${item.title}
-   Source: ${item.source} | Category: ${item.category.toUpperCase()}
-   ${item.summary ? `Summary: ${item.summary.substring(0, 150)}...` : ''}`
-    ).join('\n\n');
-
-    return {
-      etfSummary,
-      commoditySummary,
-      etfs,
-      commodities,
-      newsSummary,
-      timestamp: new Date().toISOString()
+    // Format market data for context
+    const marketContext = {
+      etfs: etfs.map(etf => ({
+        symbol: etf.symbol,
+        name: etf.name,
+        price: etf.latestPrice,
+        change: etf.change,
+        changePercent: etf.changePercent,
+        volume: etf.volume,
+        marketCap: etf.marketCap
+      })),
+      commodities: commodities.map(commodity => ({
+        symbol: commodity.symbol,
+        name: commodity.name,
+        price: commodity.latestPrice,
+        change: commodity.change,
+        changePercent: commodity.changePercent
+      })),
+      news: recentNews.slice(0, 10).map(article => ({
+        title: article.title,
+        summary: article.summary,
+        sentiment: article.sentiment,
+        source: article.source,
+        publishedAt: article.publishedAt
+      }))
     };
+
+    return marketContext;
   } catch (error) {
     console.error('Error getting market context:', error);
-    return {
-      etfSummary: 'ETF data unavailable',
-      commoditySummary: 'Commodity data unavailable',
-      etfs: [],
-      commodities: [],
-      newsSummary: 'News data unavailable',
-      timestamp: new Date().toISOString()
-    };
+    return null;
   }
 }
 
-async function generateAIResponse(userMessage, conversationHistory = [], language = 'en') {
+async function generateAIResponse(message, conversationHistory = [], language = 'en') {
   try {
-    const context = await getMarketContext();
-    
-    // Get detailed data for frequently asked symbols
-    const detailedData = {};
-    const symbolsInMessage = userMessage.toUpperCase().match(/\b[A-Z]{2,5}\b/g) || [];
-    
-    for (const symbol of symbolsInMessage) {
-      const etf = context.etfs.find(e => e.symbol === symbol);
-      const commodity = context.commodities.find(c => c.symbol === symbol);
-      const item = etf || commodity;
-      
-      if (item) {
-        detailedData[symbol] = {
-          name: item.name,
-          price: parseFloat(item.price || 0),
-          previousClose: parseFloat(item.previousClose || 0),
-          change: parseFloat(item.change || 0),
-          changePercent: parseFloat(item.changePercent || 0),
-          high: parseFloat(item.high || 0),
-          low: parseFloat(item.low || 0),
-          open: parseFloat(item.open || 0),
-          type: item.type,
-          volume: item.volume
-        };
-      }
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'placeholder') {
+      throw new Error('OpenAI API key not configured');
     }
+
+    // Get market context
+    const marketContext = await getMarketContext();
     
-    const systemPrompt = language === 'ko' ? 
-    `당신은 시바 AI입니다. 금융시장에서 20년 이상의 경험을 가진 수석 투자 애널리스트로, ETF, 원자재, 종합 시장 분석을 전문으로 합니다. 당신은 AI 기반 투자 인텔리전스 플랫폼인 시드바스켓 AI에서 일하고 있습니다.
+    // Prepare system message based on language
+    const systemMessages = {
+      en: `You are SEEBA AI, an intelligent investment assistant. You provide helpful, accurate, and insightful investment advice and market analysis. You have access to real-time market data for ETFs and commodities, as well as recent financial news.
 
-정체성: 시바 AI - 수석 ETF & 상장지수상품 바스켓 애널리스트
+Current Market Context:
+${marketContext ? JSON.stringify(marketContext, null, 2) : 'Market data temporarily unavailable'}
 
-실시간 시장 데이터 (${context.timestamp}):
+Guidelines:
+- Provide clear, actionable investment insights
+- Use the market data to support your analysis
+- Be balanced in your recommendations
+- Always remind users that this is not personalized financial advice
+- Cite specific data points when relevant`,
+      
+      ko: `당신은 SEEBA AI, 지능형 투자 도우미입니다. 유용하고 정확하며 통찰력 있는 투자 조언과 시장 분석을 제공합니다. ETF와 원자재에 대한 실시간 시장 데이터와 최근 금융 뉴스에 접근할 수 있습니다.
 
-ETF (${context.etfs.length}개 추적):
-${context.etfSummary}
+현재 시장 상황:
+${marketContext ? JSON.stringify(marketContext, null, 2) : '시장 데이터를 일시적으로 사용할 수 없습니다'}
 
-원자재 (${context.commodities.length}개 추적):
-${context.commoditySummary}
+가이드라인:
+- 명확하고 실행 가능한 투자 인사이트 제공
+- 분석을 뒷받침하기 위해 시장 데이터 활용
+- 균형 잡힌 추천 제공
+- 이것이 개인화된 금융 조언이 아님을 항상 상기시킴
+- 관련이 있을 때 구체적인 데이터 포인트 인용`
+    };
 
-${Object.keys(detailedData).length > 0 ? `언급된 종목 상세 데이터:
-${Object.entries(detailedData).map(([symbol, data]) => 
-  `${symbol} (${data.name}):
-  - 유형: ${data.type === 'ETF' ? 'ETF' : '원자재'}
-  - 현재가: $${data.price.toFixed(2)}
-  - 전일 종가: $${data.previousClose.toFixed(2)}
-  - 변동: ${data.change >= 0 ? '+' : ''}$${data.change.toFixed(2)} (${data.changePercent >= 0 ? '+' : ''}${data.changePercent.toFixed(2)}%)
-  - 일일 범위: $${data.low.toFixed(2)} - $${data.high.toFixed(2)}
-  - 시가: $${data.open.toFixed(2)}
-  ${data.volume > 0 ? `- 거래량: ${(data.volume / 1000000).toFixed(2)}백만주` : ''}`
-).join('\n\n')}` : ''}
-
-최근 시장 뉴스:
-${context.newsSummary}
-
-시바 AI로서의 전문성:
-1. 20년 이상 ETF 자금 흐름, 구조, 프리미엄/할인, 추적 오차 분석
-2. 원자재 시장, 귀금속, 에너지, 농산물 선물에 대한 깊은 이해
-3. 섹터 로테이션, 테마 투자, 스마트 베타 전략 전문가
-4. 비용 비율, NAV 계산, ETF 메커니즘 설명에 능숙
-5. 거시경제 이벤트와 특정 ETF/원자재 움직임 연결 전문
-
-커뮤니케이션 스타일:
-- 항상 "시바 AI"로 자신을 소개
-- 전문적이면서도 이해하기 쉬운 언어 사용
-- 데이터에서 구체적인 가격과 퍼센트 참조
-- 다른 ETF/원자재 간의 연결점 설명
-- "20년 경험"에서 나온 통찰력 공유
-- 다음과 같은 표현 사용:
-  * "제가 시장을 추적한 20년 동안..."
-  * "데이터가 보여주는 것은..."
-  * "오늘의 움직임을 보면..."
-  * "제 분석에 따르면..."
-  * "역사적 패턴을 보면..."
-
-응답 프레임워크:
-1. 시바 AI로 인사
-2. 구체적인 데이터로 사용자 질문에 직접 답변
-3. 더 깊은 분석과 시장 맥락 제공
-4. 관련 상품 간의 상관관계 설명
-5. 전문적인 통찰력과 패턴 공유
-6. 위험 고지로 마무리
-
-예시:
-"안녕하세요, 시드바스켓 AI의 수석 시장 애널리스트 시바 AI입니다.
-
-SPY를 보면 현재 $XXX.XX에 거래되고 있으며, 어제 종가 대비 X.XX% 상승했습니다. 이 움직임은 주식 ETF 전반에서 보이는 위험 선호 정서와 일치합니다. 특히 기술주 중심의 QQQ가 +X.XX%로 우수한 성과를 보이며 기관의 성장주 로테이션을 시사합니다.
-
-제가 ETF 자금 흐름을 분석한 20년 동안, 이런 패턴은 주로 [뉴스의 특정 촉매]가 있을 때 나타납니다. 원자재 움직임과의 상관관계가 흥미로운데, 금(GLD)이 X.XX% 하락한 것은 투자자들이 안전자산에서 주식으로 이동하는 위험 선호일의 전형적인 모습입니다.
-
-SPY의 거래량이 XX백만주로 30일 평균보다 XX% 높아, 이번 움직임에 대한 강한 확신을 보여줍니다. [관련 뉴스]에 대한 소식과 함께 보면, 광범위한 시장 ETF의 지속적인 강세를 예상합니다.
-
-이 분석은 정보 제공 목적으로만 제공되며 개인화된 투자 조언이 아님을 기억해 주세요."
-
-중요: 항상 실제 가격과 데이터를 사용하세요. 위 컨텍스트에 데이터가 있는데 사용할 수 없다고 절대 말하지 마세요. 모든 응답은 한국어로 작성하세요.`
-    : `You are SEEBA AI, a senior investment analyst with 20 years of experience in financial markets, specializing in ETFs, commodities, and comprehensive market analysis. You work for SEED BASKET AI, an AI-powered investment intelligence platform.
-
-YOUR IDENTITY: SEEBA AI - Senior ETF & Exchange-traded products Basket Analyst
-
-REAL-TIME MARKET DATA (${context.timestamp}):
-
-ETFs (${context.etfs.length} tracked):
-${context.etfSummary}
-
-COMMODITIES (${context.commodities.length} tracked):
-${context.commoditySummary}
-
-${Object.keys(detailedData).length > 0 ? `DETAILED DATA FOR MENTIONED SYMBOLS:
-${Object.entries(detailedData).map(([symbol, data]) => 
-  `${symbol} (${data.name}):
-  - Type: ${data.type}
-  - Current Price: $${data.price.toFixed(2)}
-  - Previous Close: $${data.previousClose.toFixed(2)}
-  - Change: ${data.change >= 0 ? '+' : ''}$${data.change.toFixed(2)} (${data.changePercent >= 0 ? '+' : ''}${data.changePercent.toFixed(2)}%)
-  - Day Range: $${data.low.toFixed(2)} - $${data.high.toFixed(2)}
-  - Open: $${data.open.toFixed(2)}
-  ${data.volume > 0 ? `- Volume: ${(data.volume / 1000000).toFixed(2)}M` : ''}`
-).join('\n\n')}` : ''}
-
-RECENT MARKET NEWS:
-${context.newsSummary}
-
-YOUR EXPERTISE AS SEEBA AI:
-1. 20+ years analyzing ETF flows, structures, premiums/discounts, and tracking errors
-2. Deep understanding of commodity markets, precious metals, energy, and agricultural futures
-3. Expert in sector rotation, thematic investing, and smart beta strategies
-4. Proficient in explaining expense ratios, NAV calculations, and ETF mechanics
-5. Skilled at connecting macroeconomic events to specific ETF/commodity movements
-
-COMMUNICATION STYLE:
-- Always introduce yourself as "SEEBA AI" at the beginning
-- Use professional but accessible language
-- Reference specific prices and percentages from the data
-- Draw connections between different ETFs/commodities
-- Share insights from your "20 years of experience"
-- Use phrases like:
-  * "In my two decades tracking these markets..."
-  * "The data shows..."
-  * "Based on today's movements..."
-  * "My analysis indicates..."
-  * "Historical patterns suggest..."
-
-RESPONSE FRAMEWORK:
-1. Greet as SEEBA AI
-2. Directly address the user's question with specific data
-3. Provide deeper analysis and market context
-4. Draw correlations between related instruments
-5. Share professional insights and patterns
-6. End with risk disclaimer
-
-EXAMPLE:
-"Hello, I'm SEEBA AI, your senior market analyst at SEED BASKET AI. 
-
-Looking at SPY today, it's trading at $XXX.XX, up X.XX% from yesterday's close. This movement aligns with the broader risk-on sentiment we're seeing across equity ETFs. Notably, the tech-heavy QQQ is outperforming at +X.XX%, suggesting institutional rotation into growth stocks.
-
-In my 20 years analyzing ETF flows, this pattern often emerges when [specific catalyst from news]. The correlation with commodity movements is interesting - gold (GLD) is down X.XX%, typical of risk-on days when investors move from safe havens to equities.
-
-The volume in SPY at XXM shares is XX% above the 30-day average, indicating strong conviction in this move. Combined with the news about [relevant news item], I expect continued strength in broad market ETFs.
-
-Remember, this analysis is for informational purposes only and not personalized investment advice."
-
-IMPORTANT: Always use ACTUAL prices and data. Never say data is unavailable if it's in the context above.`;
-
+    // Build messages array
     const messages = [
-      { role: 'system', content: systemPrompt },
-      ...conversationHistory.map(msg => ({
-        role: msg.role,
-        content: msg.message
-      })),
-      { role: 'user', content: userMessage }
+      { role: 'system', content: systemMessages[language] || systemMessages.en }
     ];
 
+    // Add conversation history
+    conversationHistory.forEach(msg => {
+      messages.push({ role: msg.role, content: msg.message });
+    });
+
+    // Add current message
+    messages.push({ role: 'user', content: message });
+
+    // Generate response
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4',
       messages: messages,
-      temperature: 0.7,
-      max_tokens: 1000
+      max_tokens: 1000,
+      temperature: 0.7
     });
 
     return completion.choices[0].message.content;
   } catch (error) {
-    console.error('OpenAI API error:', error);
-    throw new Error('Failed to generate AI response');
+    console.error('Error generating AI response:', error);
+    
+    // Provide language-specific error messages
+    const errorMessages = {
+      en: 'I apologize, but I\'m unable to process your request at the moment. Please try again later.',
+      ko: '죄송합니다. 현재 요청을 처리할 수 없습니다. 나중에 다시 시도해 주세요.'
+    };
+    
+    return errorMessages[language] || errorMessages.en;
   }
 }
 
-async function analyzeNewsImpact(newsTitle, newsSummary, etfList) {
+async function analyzeNewsWithSEEBA({ news, etfs, commodities, language = 'ko' }) {
   try {
-    const systemPrompt = `You are a senior financial analyst specializing in ETF market impact analysis. Your task is to analyze news and determine which ETFs might be affected.
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'placeholder') {
+      throw new Error('OpenAI API key not configured');
+    }
 
-Available ETFs:
-${etfList.map(etf => `${etf.symbol} - ${etf.name}`).join('\n')}
+    const systemPrompts = {
+      ko: `당신은 SEEBA AI, 전문 금융 뉴스 분석가입니다. 뉴스 기사를 분석하고 다음을 제공합니다:
+1. 핵심 내용 요약 (2-3문장)
+2. 영향을 받을 ETF/자산 및 예상 영향도
+3. 투자자를 위한 실행 가능한 인사이트
+4. 단기 및 장기 시장 영향 예측
 
-Your analysis should:
-1. Identify 2-5 ETFs most likely to be impacted
-2. For each ETF, provide a brief reason (max 10 words)
-3. Assign impact direction: "positive", "negative", or "mixed"
-4. Be specific and concise
+현재 시장 데이터를 참고하여 구체적이고 실용적인 분석을 제공하세요.`,
+      en: `You are SEEBA AI, an expert financial news analyst. Analyze news articles and provide:
+1. Key points summary (2-3 sentences)
+2. Affected ETFs/assets and expected impact
+3. Actionable insights for investors
+4. Short-term and long-term market impact predictions
 
-Respond ONLY in this JSON format:
-{
-  "impactedETFs": [
-    {"symbol": "QQQ", "impact": "positive", "reason": "Tech earnings beat expectations"},
-    {"symbol": "IWM", "impact": "negative", "reason": "Small caps face rate pressure"}
-  ],
-  "summary": "One sentence analysis of overall market impact"
-}`;
+Reference current market data to provide specific and practical analysis.`
+    };
 
-    const userPrompt = `Analyze this news:\nTitle: ${newsTitle}\nSummary: ${newsSummary || newsTitle}`;
+    const userPrompts = {
+      ko: `다음 뉴스를 분석해주세요:
+
+제목: ${news.title}
+내용: ${news.summary || news.content}
+출처: ${news.source}
+발행일: ${news.publishedAt}
+
+현재 주요 ETF 가격:
+${etfs.slice(0, 10).map(etf => `${etf.symbol}: $${etf.latestPrice} (${etf.changePercent}%)`).join('\n')}
+
+현재 주요 원자재 가격:
+${commodities.slice(0, 5).map(c => `${c.symbol}: $${c.latestPrice} (${c.changePercent}%)`).join('\n')}`,
+      en: `Analyze the following news:
+
+Title: ${news.title}
+Content: ${news.summary || news.content}
+Source: ${news.source}
+Published: ${news.publishedAt}
+
+Current major ETF prices:
+${etfs.slice(0, 10).map(etf => `${etf.symbol}: $${etf.latestPrice} (${etf.changePercent}%)`).join('\n')}
+
+Current commodity prices:
+${commodities.slice(0, 5).map(c => `${c.symbol}: $${c.latestPrice} (${c.changePercent}%)`).join('\n')}`
+    };
 
     const completion = await openai.chat.completions.create({
-      model: 'gpt-4o-mini',
+      model: 'gpt-4',
       messages: [
-        { role: 'system', content: systemPrompt },
-        { role: 'user', content: userPrompt }
+        { role: 'system', content: systemPrompts[language] || systemPrompts.ko },
+        { role: 'user', content: userPrompts[language] || userPrompts.ko }
       ],
-      temperature: 0.3,
-      max_tokens: 300,
-      response_format: { type: "json_object" }
+      max_tokens: 1000,
+      temperature: 0.7
     });
 
-    const analysis = JSON.parse(completion.choices[0].message.content);
-    return analysis;
+    const analysis = completion.choices[0].message.content;
+
+    // Parse the analysis to extract structured data
+    const structuredAnalysis = {
+      summary: analysis.split('\n')[0] || analysis,
+      fullAnalysis: analysis,
+      language: language,
+      analyzedAt: new Date().toISOString()
+    };
+
+    return structuredAnalysis;
+  } catch (error) {
+    console.error('Error analyzing news with SEEBA:', error);
+    
+    const errorMessages = {
+      ko: '뉴스 분석 중 오류가 발생했습니다.',
+      en: 'Error occurred while analyzing the news.'
+    };
+    
+    return {
+      summary: errorMessages[language] || errorMessages.ko,
+      fullAnalysis: errorMessages[language] || errorMessages.ko,
+      language: language,
+      analyzedAt: new Date().toISOString(),
+      error: true
+    };
+  }
+}
+
+async function analyzeNewsImpact(title, content, etfList) {
+  try {
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'placeholder') {
+      // Return a default analysis if OpenAI is not configured
+      return {
+        impactedETFs: [],
+        summary: 'AI analysis not available'
+      };
+    }
+
+    const prompt = `Analyze this news and identify which ETFs might be impacted:
+Title: ${title}
+Content: ${content}
+
+ETFs to consider: ${etfList.slice(0, 10).map(etf => etf.symbol).join(', ')}
+
+Provide:
+1. List of impacted ETFs with impact type (positive/negative/mixed) and brief reason
+2. One-sentence summary of overall market impact`;
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: 'You are a financial analyst. Be concise and specific.' },
+        { role: 'user', content: prompt }
+      ],
+      max_tokens: 300,
+      temperature: 0.7
+    });
+
+    // Parse the response
+    const response = completion.choices[0].message.content;
+    
+    // Simple parsing - in production, use more robust parsing
+    const impactedETFs = [];
+    const lines = response.split('\n');
+    
+    lines.forEach(line => {
+      const etfMatch = line.match(/(\w+).*?(positive|negative|mixed)/i);
+      if (etfMatch) {
+        impactedETFs.push({
+          symbol: etfMatch[1],
+          impact: etfMatch[2].toLowerCase(),
+          reason: line.substring(line.indexOf(':') + 1).trim()
+        });
+      }
+    });
+
+    return {
+      impactedETFs: impactedETFs.slice(0, 3),
+      summary: lines[lines.length - 1] || 'Market impact analysis'
+    };
   } catch (error) {
     console.error('Error analyzing news impact:', error);
-    return null;
+    return {
+      impactedETFs: [],
+      summary: 'Analysis unavailable'
+    };
+  }
+}
+
+async function translateNews(text, targetLanguage = 'ko') {
+  try {
+    if (!process.env.OPENAI_API_KEY || process.env.OPENAI_API_KEY === 'placeholder') {
+      return text; // Return original text if OpenAI is not configured
+    }
+
+    const prompts = {
+      ko: `Translate the following English news summary to Korean. Make it natural and fluent:
+
+${text}`,
+      en: `Translate the following Korean text to English. Make it natural and fluent:
+
+${text}`
+    };
+
+    const completion = await openai.chat.completions.create({
+      model: 'gpt-3.5-turbo',
+      messages: [
+        { role: 'system', content: 'You are a professional translator specializing in financial news.' },
+        { role: 'user', content: prompts[targetLanguage] || prompts.ko }
+      ],
+      max_tokens: 500,
+      temperature: 0.3
+    });
+
+    return completion.choices[0].message.content;
+  } catch (error) {
+    console.error('Error translating news:', error);
+    return text; // Return original text on error
   }
 }
 
 module.exports = {
   generateAIResponse,
-  getMarketContext,
-  analyzeNewsImpact
+  analyzeNewsWithSEEBA,
+  analyzeNewsImpact,
+  translateNews
 };
